@@ -8,24 +8,11 @@ import Swap from "@/components/Swap";
 import Wallet from "@/components/Wallet";
 import Profile from "@/components/Profile";
 
-interface UserData {
-  username: string;
-  email: string;
-  firstname: string;
-  lastname: string;
-}
-
-interface MainContentProps {
-  activeScreen: string;
-  userData: UserData | null;
-  loading: boolean;
-}
-
 export default function MainContent({
   activeScreen,
-  userData,
-  loading,
-}: MainContentProps) {
+}: {
+  activeScreen: string;
+}) {
   switch (activeScreen) {
     case "Home":
       return <Home />;
@@ -36,7 +23,7 @@ export default function MainContent({
     case "Wallet":
       return <Wallet />;
     case "Profile":
-      return <Profile userData={userData} loading={loading} />;
+      return <Profile />;
     default:
       return (
         <div className="text-center">

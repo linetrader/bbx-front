@@ -1,3 +1,5 @@
+// src/app/Login/page.tsx
+
 "use client";
 
 import { useState, useRef } from "react";
@@ -36,7 +38,10 @@ export default function Login() {
       const { data } = await api.post("/graphql", {
         query: `
           mutation Login($email: String!, $password: String!) {
-            login(email: $email, password: $password)
+            login(email: $email, password: $password) {
+              token
+              userId
+            }
           }
         `,
         variables: { email, password },
@@ -57,7 +62,8 @@ export default function Login() {
       }
 
       if (data.data && data.data.login) {
-        login(data.data.login);
+        const { token, userId } = data.data.login;
+        login(token, userId);
         setError("");
       } else {
         setError("Unexpected error occurred. Please try again.");
@@ -78,8 +84,8 @@ export default function Login() {
             <Image
               src={NIALogo}
               alt="NIA Logo"
-              layout="fill" // 부모 요소의 크기에 맞게 조정
-              objectFit="contain" // 원본 비율 유지
+              layout="fill"
+              objectFit="contain"
             />
           </div>
         </div>
