@@ -1,16 +1,25 @@
 // components/Wallet.tsx
 
+// components/Wallet.tsx
+
 "use client";
 
 import { useState, useEffect } from "react";
 import api from "@/utils/api";
 import Image from "next/image";
 import NIALogo from "@/assets/images/logos/NIA.png";
-import FooterNavigation from "@/components/FooterNavigation";
+import { useAuth } from "@/context/AuthContext";
+
+interface WalletData {
+  address: string;
+  usdtBalance: string;
+  btcBalance: string;
+}
 
 export default function Wallet() {
+  const { token } = useAuth();
   const [loading, setLoading] = useState(false);
-  const [walletAddress, setWalletAddress] = useState<string | null | undefined>(
+  const [walletData, setWalletData] = useState<WalletData | null | undefined>(
     undefined
   );
   const [error, setError] = useState<string | null>(null);
@@ -19,38 +28,52 @@ export default function Wallet() {
     setLoading(true);
     setError(null);
 
-    const userId = localStorage.getItem("userId");
-    if (!userId) {
-      setError("User ID not found. Please log in again.");
-      setWalletAddress(null); // 월렛이 없음을 표시
+    if (!token) {
+      setError("Authentication token is missing.");
+      setWalletData(null);
       setLoading(false);
       return;
     }
 
     try {
-      const { data } = await api.post("/graphql", {
-        query: `
-          query GetWalletAddress($userId: String!) {
-            getWalletAddress(userId: $userId)
+      const { data } = await api.post(
+        "/graphql",
+        {
+          query: `
+          query {
+            getWalletInfo {
+              address
+              usdtBalance
+              btcBalance
+            }
           }
         `,
-        variables: { userId },
-      });
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      console.log("Fetched Wallet Data:", data);
 
       if (data.errors) {
         const errorMessage =
           data.errors[0]?.message || "Unknown error occurred.";
         if (errorMessage.includes("Wallet not found")) {
-          setWalletAddress(null); // 월렛이 없는 경우 처리
+          setWalletData(null);
         } else {
-          throw new Error(errorMessage); // 기타 에러 처리
+          throw new Error(errorMessage);
         }
       } else {
-        setWalletAddress(data.data.getWalletAddress); // 월렛 주소 저장
+        setWalletData(data.data.getWalletInfo);
       }
     } catch (err: any) {
+      console.error("Error fetching wallet data:", err);
       setError(
-        err.message || "An unexpected error occurred while fetching the wallet."
+        err.message ||
+          "An unexpected error occurred while fetching wallet data."
       );
     } finally {
       setLoading(false);
@@ -61,29 +84,36 @@ export default function Wallet() {
     setLoading(true);
     setError(null);
 
-    const userId = localStorage.getItem("userId");
-    if (!userId) {
-      setError("User ID not found. Please log in again.");
-      setLoading(false);
-      return;
-    }
-
     try {
-      const { data } = await api.post("/graphql", {
-        query: `
-          mutation CreateWallet($userId: String!) {
-            createWallet(userId: $userId)
+      const { data } = await api.post(
+        "/graphql",
+        {
+          query: `
+          mutation {
+            createWallet {
+              address
+              usdtBalance
+              btcBalance
+            }
           }
         `,
-        variables: { userId },
-      });
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      console.log("Created Wallet Data:", data);
 
       if (data.errors) {
         throw new Error(data.errors[0]?.message || "Failed to create wallet.");
       }
 
-      setWalletAddress(data.data.createWallet); // 성공 시 지갑 주소 저장
+      setWalletData(data.data.createWallet);
     } catch (err: any) {
+      console.error("Error creating wallet:", err);
       setError(
         err.message || "An unexpected error occurred while creating the wallet."
       );
@@ -100,40 +130,53 @@ export default function Wallet() {
     <div className="flex flex-col min-h-screen bg-gradient-to-b from-gray-800 to-gray-900 text-white">
       <div className="flex-grow flex items-center justify-center">
         <div className="bg-gray-900 p-8 rounded-lg shadow-lg w-full max-w-md">
-          {/* Logo Section */}
           <div className="flex justify-center mb-6">
             <div className="relative w-24 h-24">
               <Image
                 src={NIALogo}
                 alt="NIA Logo"
-                layout="fill"
-                objectFit="contain"
+                fill
+                className="object-contain"
               />
             </div>
           </div>
-          <h1 className="text-3xl font-bold text-center text-yellow-400 mb-6">
+          <h1 className="text-2xl font-bold text-center text-yellow-400 mb-6">
             Wallet Management
           </h1>
-          {error && !walletAddress && (
-            <div className="bg-red-100 text-red-700 border border-red-400 px-4 py-3 rounded mb-4">
+          {error && (
+            <div className="bg-red-100 text-red-700 border border-red-400 px-4 py-3 rounded mb-4 text-sm">
               {error}
             </div>
           )}
-          {walletAddress === undefined ? (
-            <div className="text-center text-gray-500">Loading...</div>
-          ) : walletAddress ? (
-            <div className="text-center text-green-500">
-              <p className="mb-4">Wallet Address</p>
-              <p className="font-mono break-all">{walletAddress}</p>
+          {loading ? (
+            <div className="text-center text-gray-400 font-medium text-sm">
+              Loading...
+            </div>
+          ) : walletData ? (
+            <div className="text-left">
+              <div className="mb-4">
+                <p className="text-yellow-400 font-bold">Wallet Address:</p>
+                <p className="font-mono break-all text-gray-300">
+                  {walletData.address}
+                </p>
+              </div>
+              <div className="mb-4">
+                <p className="text-yellow-400 font-bold">USDT Balance:</p>
+                <p className="text-gray-300">{walletData.usdtBalance}</p>
+              </div>
+              <div className="mb-4">
+                <p className="text-yellow-400 font-bold">BTC Balance:</p>
+                <p className="text-gray-300">{walletData.btcBalance}</p>
+              </div>
             </div>
           ) : (
             <button
               onClick={createWallet}
               disabled={loading}
-              className={`w-full py-2 rounded font-semibold ${
+              className={`w-full py-2 mt-4 rounded font-semibold shadow-md transition-colors text-white text-sm ${
                 loading
                   ? "bg-gray-500 cursor-not-allowed"
-                  : "bg-yellow-500 hover:bg-yellow-400 text-black"
+                  : "bg-yellow-500 hover:bg-yellow-400"
               }`}
             >
               {loading ? "Creating Wallet..." : "Create Wallet"}

@@ -118,7 +118,7 @@ export default function Register() {
           placeholder="Username"
           value={username}
           onChange={(e) => setUsername(e.target.value)}
-          className={`w-full px-4 py-2 mb-4 border rounded focus:outline-none ${
+          className={`w-full px-4 py-2 mb-4 border rounded focus:outline-none text-black ${
             requiredFields.includes("username")
               ? "border-red-500 focus:ring-red-500"
               : "focus:ring-indigo-500"
@@ -133,7 +133,7 @@ export default function Register() {
           placeholder="First Name"
           value={firstname}
           onChange={(e) => setFirstname(e.target.value)}
-          className={`w-full px-4 py-2 mb-4 border rounded focus:outline-none ${
+          className={`w-full px-4 py-2 mb-4 border rounded focus:outline-none text-black ${
             requiredFields.includes("firstname")
               ? "border-red-500 focus:ring-red-500"
               : "focus:ring-indigo-500"
@@ -145,7 +145,7 @@ export default function Register() {
           placeholder="Last Name"
           value={lastname}
           onChange={(e) => setLastname(e.target.value)}
-          className={`w-full px-4 py-2 mb-4 border rounded focus:outline-none ${
+          className={`w-full px-4 py-2 mb-4 border rounded focus:outline-none text-black ${
             requiredFields.includes("lastname")
               ? "border-red-500 focus:ring-red-500"
               : "focus:ring-indigo-500"
@@ -157,7 +157,7 @@ export default function Register() {
           placeholder="Email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          className={`w-full px-4 py-2 mb-4 border rounded focus:outline-none ${
+          className={`w-full px-4 py-2 mb-4 border rounded focus:outline-none text-black ${
             emailError || requiredFields.includes("email")
               ? "border-red-500 focus:ring-red-500"
               : "focus:ring-indigo-500"
@@ -172,7 +172,7 @@ export default function Register() {
           placeholder="Password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          className={`w-full px-4 py-2 mb-4 border rounded focus:outline-none ${
+          className={`w-full px-4 py-2 mb-4 border rounded focus:outline-none text-black ${
             requiredFields.includes("password")
               ? "border-red-500 focus:ring-red-500"
               : "focus:ring-indigo-500"
@@ -184,7 +184,7 @@ export default function Register() {
           placeholder="Confirm Password"
           value={confirmPassword}
           onChange={(e) => setConfirmPassword(e.target.value)}
-          className="w-full px-4 py-2 mb-4 border rounded focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          className="w-full px-4 py-2 mb-4 border rounded focus:outline-none text-black focus:ring-2 focus:ring-indigo-500"
           autoComplete="new-password"
         />
         <input
@@ -192,7 +192,7 @@ export default function Register() {
           placeholder="Referrer (Optional)"
           value={referrer}
           onChange={(e) => setReferrer(e.target.value)}
-          className="w-full px-4 py-2 mb-4 border rounded focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          className="w-full px-4 py-2 mb-4 border rounded focus:outline-none text-black focus:ring-2 focus:ring-indigo-500"
           autoComplete="off"
         />
         <button

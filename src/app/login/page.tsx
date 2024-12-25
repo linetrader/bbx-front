@@ -35,41 +35,35 @@ export default function Login() {
     setIsLoading(true);
 
     try {
-      const { data } = await api.post("/graphql", {
-        query: `
-          mutation Login($email: String!, $password: String!) {
-            login(email: $email, password: $password) {
-              token
-              userId
+      const { data } = await api.post(
+        "/graphql",
+        {
+          query: `
+            mutation Login($email: String!, $password: String!) {
+              login(email: $email, password: $password)
             }
-          }
-        `,
-        variables: { email, password },
-      });
+          `,
+          variables: { email, password },
+        },
+        {
+          headers: {
+            Authorization: "login",
+          },
+        }
+      );
+
+      console.log("GraphQL response data:", data);
 
       if (data.errors) {
-        const serverMessage = data.errors[0]?.message || "An error occurred.";
-        if (serverMessage.includes("Email not found")) {
-          setError("The email address you entered is incorrect.");
-          emailInputRef.current?.focus();
-        } else if (serverMessage.includes("Incorrect password")) {
-          setError("The password you entered is incorrect.");
-          passwordInputRef.current?.focus();
-        } else {
-          setError(serverMessage);
-        }
-        return;
+        throw new Error(data.errors[0]?.message || "Login failed");
       }
 
-      if (data.data && data.data.login) {
-        const { token, userId } = data.data.login;
-        login(token, userId);
-        setError("");
-      } else {
-        setError("Unexpected error occurred. Please try again.");
-      }
-    } catch (error: any) {
-      setError("An unexpected error occurred. Please try again.");
+      const token = data.data.login;
+      console.log("Received token:", token);
+      login(token);
+    } catch (err: any) {
+      console.error("Error during login request:", err);
+      setError(err.message || "An unexpected error occurred.");
     } finally {
       setIsLoading(false);
     }
@@ -84,8 +78,10 @@ export default function Login() {
             <Image
               src={NIALogo}
               alt="NIA Logo"
-              layout="fill"
-              objectFit="contain"
+              fill
+              sizes="(max-width: 768px) 100vw, 50vw"
+              className="object-contain"
+              priority
             />
           </div>
         </div>

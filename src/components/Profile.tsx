@@ -3,6 +3,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useAuth } from "@/context/AuthContext";
 import api from "@/utils/api";
 
 interface UserData {
@@ -13,6 +14,7 @@ interface UserData {
 }
 
 export default function Profile() {
+  const { token } = useAuth();
   const [loading, setLoading] = useState(false);
   const [userData, setUserData] = useState<UserData | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -21,25 +23,43 @@ export default function Profile() {
     setLoading(true);
     setError(null);
 
+    if (!token || typeof token !== "string") {
+      setError("Authentication token is missing.");
+      setLoading(false);
+      return;
+    }
+
+    console.log("Profile token", token);
+
     try {
-      const { data } = await api.post("/graphql", {
-        query: `
-          query {
-            me {
-              username
-              email
-              firstname
-              lastname
+      const { data } = await api.post(
+        "/graphql",
+        {
+          query: `
+            query {
+              getUserInfo {
+                username
+                email
+                firstname
+                lastname
+              }
             }
-          }
-        `,
-      });
+          `,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      console.log("getUserInfo response:", data); // 디버그 로그 추가
 
       if (data.errors) {
         throw new Error(data.errors[0]?.message || "Failed to fetch profile.");
       }
 
-      setUserData(data.data.me);
+      setUserData(data.data.getUserInfo);
     } catch (err: any) {
       setError(err.message || "An unexpected error occurred.");
       setUserData(null);
