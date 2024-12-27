@@ -4,6 +4,8 @@
 
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { JwtPayload } from "jwt-decode";
+import { jwtDecode } from "jwt-decode";
 
 interface AuthContextType {
   token: string | null;
@@ -21,14 +23,44 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     const storedToken = localStorage.getItem("token");
     if (storedToken) {
-      setToken(storedToken);
+      console.log(storedToken);
+      if (isTokenExpired(storedToken)) {
+        handleTokenExpiration();
+      } else {
+        setToken(storedToken);
+      }
     }
   }, []);
+
+  useEffect(() => {
+    console.log(token);
+    if (token && isTokenExpired(token)) {
+      handleTokenExpiration();
+    }
+  }, [token]);
+
+  const isTokenExpired = (token: string) => {
+    try {
+      const decoded = jwtDecode<JwtPayload>(token);
+      if (decoded.exp && decoded.exp * 1000 < Date.now()) {
+        return true; // Token has expired
+      }
+      return false;
+    } catch (error) {
+      console.error("Error decoding token:", error);
+      return true; // Treat invalid tokens as expired
+    }
+  };
+
+  const handleTokenExpiration = () => {
+    logout();
+    alert("Your session has expired. Please log in again.");
+    router.push("/login");
+  };
 
   const login = (newToken: string) => {
     localStorage.setItem("token", newToken);
     setToken(newToken);
-    console.log("AuthContextType login", newToken);
     router.push("/dashboard");
   };
 

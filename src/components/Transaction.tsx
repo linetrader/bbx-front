@@ -1,26 +1,26 @@
-// components/Profile.tsx
+// components/Transaction.tsx
 
 "use client";
 
 import { useState, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
 import api from "@/utils/api";
-import ProfileView from "@/components/ProfileView";
+import TransactionView from "@/components/TransactionView";
 
-interface UserData {
-  username: string;
-  email: string;
-  firstname: string;
-  lastname: string;
+interface Transaction {
+  type: string;
+  amount: string;
+  token: string;
+  transactionHash: string;
 }
 
-export default function Profile() {
+export default function Transaction() {
   const { token } = useAuth();
   const [loading, setLoading] = useState(false);
-  const [userData, setUserData] = useState<UserData | null>(null);
+  const [transactions, setTransactions] = useState<Transaction[] | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchProfileData = async () => {
+  const fetchTransactionData = async () => {
     setLoading(true);
     setError(null);
 
@@ -36,11 +36,11 @@ export default function Profile() {
         {
           query: `
             query {
-              getUserInfo {
-                username
-                email
-                firstname
-                lastname
+              getTransactionList {
+                type
+                amount
+                token
+                transactionHash
               }
             }
           `,
@@ -61,18 +61,24 @@ export default function Profile() {
         return;
       }
 
-      setUserData(data.data.getUserInfo);
+      setTransactions(data.data.getTransactionList);
     } catch (err: any) {
       setError(err.message || "An unexpected error occurred.");
-      setUserData(null);
+      setTransactions(null);
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchProfileData();
+    fetchTransactionData();
   }, []);
 
-  return <ProfileView userData={userData} loading={loading} error={error} />;
+  return (
+    <TransactionView
+      transactions={transactions}
+      loading={loading}
+      error={error}
+    />
+  );
 }

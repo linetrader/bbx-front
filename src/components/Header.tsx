@@ -2,8 +2,9 @@
 
 "use client";
 
-import { useState } from "react";
 import { useAuth } from "../context/AuthContext";
+import Image from "next/image";
+import Logo from "../assets/images/logos/LOGO.png"; // 로고 이미지 파일 경로
 
 interface HeaderProps {
   menuOpen: boolean;
@@ -15,7 +16,18 @@ export default function Header({ menuOpen, setMenuOpen }: HeaderProps) {
 
   return (
     <header className="p-6 flex justify-between items-center bg-gray-900 shadow-lg relative">
-      <h1 className="text-3xl font-bold text-yellow-500">Dashboard</h1>
+      {/* 로고 이미지 */}
+      <div className="relative w-20 h-8">
+        <div className="relative -top-20 -left-20 w-80 h-48 max-w-none max-h-none">
+          <Image
+            src={Logo}
+            alt="BitBoostX Logo"
+            layout="fill"
+            sizes="(max-width: 768px) 100vw, 50vw"
+            objectFit="contain"
+          />
+        </div>
+      </div>
       <div className="relative">
         {/* 햄버거 메뉴 버튼 */}
         <button

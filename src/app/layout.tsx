@@ -3,8 +3,8 @@ import { AuthProvider } from "@/context/AuthContext";
 import "../styles/globals.css";
 
 export const metadata = {
-  title: "BoostX",
-  description: "Next.js + Nest.js Fullstack Application",
+  title: "BitBoostX",
+  description: "Best Mining Group",
 };
 
 export default function RootLayout({
