@@ -1,131 +1,21 @@
 // components/Package.tsx
+
 "use client";
 
-import React, { useState, useEffect } from "react";
-import { useGraphQL } from "../utils/graphqlApi";
-
-interface Package {
-  id: string;
-  name: string;
-  price: string;
-}
-
-interface PurchaseRecord {
-  packageName: string;
-  quantity: number;
-}
+import React from "react";
+import { usePackage } from "../hooks/usePackage";
 
 export default function Package() {
-  const { graphqlRequest, loading, error, setError } = useGraphQL();
-  const [packages, setPackages] = useState<Package[]>([]);
-  const [quantities, setQuantities] = useState<{ [key: string]: number }>({});
-  const [usdtBalance, setUsdtBalance] = useState(0.0);
-  const [purchaseRecords, setPurchaseRecords] = useState<PurchaseRecord[]>([]);
-
-  const fetchPackages = async () => {
-    try {
-      const { data } = await graphqlRequest(
-        `query { getPackages { id name price } }`
-      );
-
-      //console.log("fetchPackages - data.getPackages : ", data.getPackages);
-
-      setPackages(data.getPackages);
-
-      const initialQuantities = data.getPackages.reduce(
-        (acc: any, pkg: Package) => {
-          acc[pkg.id] = 0;
-          return acc;
-        },
-        {}
-      );
-
-      setQuantities(initialQuantities);
-
-      //console.log("fetchPackages - quantities : ", initialQuantities);
-    } catch (err: any) {
-      setError(err.message || "An unexpected error occurred.");
-    }
-  };
-
-  const fetchUsdtBalance = async () => {
-    try {
-      const { data } = await graphqlRequest(
-        `query { getWalletInfo { usdtBalance } }`
-      );
-
-      //console.log("fetchUsdtBalance - getWalletInfo.usdtBalance : ",data.getWalletInfo.usdtBalance);
-
-      setUsdtBalance(data.getWalletInfo.usdtBalance);
-    } catch (err: any) {
-      setError(err.message || "An unexpected error occurred.");
-    }
-  };
-
-  const fetchPurchaseRecords = async () => {
-    try {
-      const { data } = await graphqlRequest(
-        `query { getPurchaseRecords { packageName quantity } }`
-      );
-
-      const aggregatedRecords: PurchaseRecord[] = Object.values(
-        data.getPurchaseRecords.reduce((acc: any, record: any) => {
-          if (!acc[record.packageName]) {
-            acc[record.packageName] = {
-              packageName: record.packageName,
-              quantity: 0,
-            };
-          }
-          acc[record.packageName].quantity += record.quantity;
-          return acc;
-        }, {})
-      );
-
-      //console.log("fetchPurchaseRecords - aggregatedRecords : ",aggregatedRecords);
-
-      setPurchaseRecords(aggregatedRecords);
-    } catch (err: any) {
-      setError(err.message || "An unexpected error occurred.");
-    }
-  };
-
-  const handlePurchase = async (packageId: string) => {
-    try {
-      const quantity = quantities[packageId];
-
-      if (quantity <= 0) {
-        setError("Quantity must be greater than zero.");
-        return;
-      }
-
-      const { data } = await graphqlRequest(
-        `mutation PurchasePackage($packageId: String!, $quantity: Int!) {
-          purchasePackage(packageId: $packageId, quantity: $quantity)
-        }`,
-        { packageId, quantity }
-      );
-
-      //console.log("handlePurchase - data.purchasePackage : ",data.purchasePackage);
-
-      fetchUsdtBalance();
-      fetchPurchaseRecords();
-      alert(data.purchasePackage);
-    } catch (err: any) {
-      setError(err.message || "An unexpected error occurred.");
-    }
-  };
-
-  useEffect(() => {
-    //console.log("Packages state updated:", packages);
-    //console.log("Loading state:", loading);
-  }, [packages]);
-
-  useEffect(() => {
-    console.log("useEffect fetchData");
-    fetchPackages();
-    fetchUsdtBalance();
-    fetchPurchaseRecords();
-  }, []);
+  const {
+    packages,
+    quantities,
+    usdtBalance,
+    purchaseRecords,
+    loading,
+    error,
+    setQuantities,
+    handlePurchase,
+  } = usePackage();
 
   return (
     <div className="flex flex-col min-h-screen bg-gradient-to-b from-gray-800 to-gray-900 text-white">
