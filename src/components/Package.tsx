@@ -1,52 +1,192 @@
 // components/Package.tsx
+"use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useGraphQL } from "../utils/graphqlApi";
+
+interface Package {
+  id: string;
+  name: string;
+  price: string;
+}
+
+interface PurchaseRecord {
+  packageName: string;
+  quantity: number;
+}
 
 export default function Package() {
-  const [bbxQuantity, setBbxQuantity] = useState(0.001);
-  const [btcQuantity, setBtcQuantity] = useState(0);
-  const [dogeQuantity, setDogeQuantity] = useState(0);
-  const bbxPrice = 0.001; // Example price for BBX Coin
-  const btcMinerPrice = 400; // Price for BTC miner
-  const dogeMinerPrice = 400; // Price for DOGE miner
+  const { graphqlRequest, loading, error, setError } = useGraphQL();
+  const [packages, setPackages] = useState<Package[]>([]);
+  const [quantities, setQuantities] = useState<{ [key: string]: number }>({});
+  const [usdtBalance, setUsdtBalance] = useState(0.0);
+  const [purchaseRecords, setPurchaseRecords] = useState<PurchaseRecord[]>([]);
 
-  const total =
-    bbxQuantity * bbxPrice +
-    btcQuantity * btcMinerPrice +
-    dogeQuantity * dogeMinerPrice;
+  const fetchPackages = async () => {
+    try {
+      const { data } = await graphqlRequest(
+        `query { getPackages { id name price } }`
+      );
+
+      //console.log("fetchPackages - data.getPackages : ", data.getPackages);
+
+      setPackages(data.getPackages);
+
+      const initialQuantities = data.getPackages.reduce(
+        (acc: any, pkg: Package) => {
+          acc[pkg.id] = 0;
+          return acc;
+        },
+        {}
+      );
+
+      setQuantities(initialQuantities);
+
+      //console.log("fetchPackages - quantities : ", initialQuantities);
+    } catch (err: any) {
+      setError(err.message || "An unexpected error occurred.");
+    }
+  };
+
+  const fetchUsdtBalance = async () => {
+    try {
+      const { data } = await graphqlRequest(
+        `query { getWalletInfo { usdtBalance } }`
+      );
+
+      //console.log("fetchUsdtBalance - getWalletInfo.usdtBalance : ",data.getWalletInfo.usdtBalance);
+
+      setUsdtBalance(data.getWalletInfo.usdtBalance);
+    } catch (err: any) {
+      setError(err.message || "An unexpected error occurred.");
+    }
+  };
+
+  const fetchPurchaseRecords = async () => {
+    try {
+      const { data } = await graphqlRequest(
+        `query { getPurchaseRecords { packageName quantity } }`
+      );
+
+      const aggregatedRecords: PurchaseRecord[] = Object.values(
+        data.getPurchaseRecords.reduce((acc: any, record: any) => {
+          if (!acc[record.packageName]) {
+            acc[record.packageName] = {
+              packageName: record.packageName,
+              quantity: 0,
+            };
+          }
+          acc[record.packageName].quantity += record.quantity;
+          return acc;
+        }, {})
+      );
+
+      //console.log("fetchPurchaseRecords - aggregatedRecords : ",aggregatedRecords);
+
+      setPurchaseRecords(aggregatedRecords);
+    } catch (err: any) {
+      setError(err.message || "An unexpected error occurred.");
+    }
+  };
+
+  const handlePurchase = async (packageId: string) => {
+    try {
+      const quantity = quantities[packageId];
+
+      if (quantity <= 0) {
+        setError("Quantity must be greater than zero.");
+        return;
+      }
+
+      const { data } = await graphqlRequest(
+        `mutation PurchasePackage($packageId: String!, $quantity: Int!) {
+          purchasePackage(packageId: $packageId, quantity: $quantity)
+        }`,
+        { packageId, quantity }
+      );
+
+      //console.log("handlePurchase - data.purchasePackage : ",data.purchasePackage);
+
+      fetchUsdtBalance();
+      fetchPurchaseRecords();
+      alert(data.purchasePackage);
+    } catch (err: any) {
+      setError(err.message || "An unexpected error occurred.");
+    }
+  };
+
+  useEffect(() => {
+    //console.log("Packages state updated:", packages);
+    //console.log("Loading state:", loading);
+  }, [packages]);
+
+  useEffect(() => {
+    console.log("useEffect fetchData");
+    fetchPackages();
+    fetchUsdtBalance();
+    fetchPurchaseRecords();
+  }, []);
 
   return (
     <div className="flex flex-col min-h-screen bg-gradient-to-b from-gray-800 to-gray-900 text-white">
-      <div className="flex-grow flex items-start justify-center pt-24">
+      <div className="flex-grow flex items-start justify-center pt-12">
         <div className="bg-gray-900 p-8 rounded-lg shadow-lg w-full max-w-md">
-          <h2 className="text-4xl font-bold text-blue-400 mb-4">Package Buy</h2>
-          <div className="my-6">
-            <h3 className="text-xl text-white">BTC Mining</h3>
-            <input
-              type="number"
-              value={btcQuantity}
-              onChange={(e) => setBtcQuantity(parseFloat(e.target.value))}
-              className="border p-2 mt-2 text-black"
-            />
-            <button className="bg-blue-500 text-black p-2 ml-2">BUY</button>
+          {/* My Purchases Section */}
+          <h2 className="text-4xl font-bold text-blue-400 mb-4">
+            My Purchases
+          </h2>
+          <div className="bg-gray-800 p-4 rounded mb-6">
+            {purchaseRecords.length > 0 ? (
+              <ul className="list-disc pl-5">
+                {purchaseRecords.map((record) => (
+                  <li key={record.packageName}>
+                    {record.packageName} - {record.quantity}
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p>No purchases yet.</p>
+            )}
           </div>
 
-          <div className="my-6">
-            <h3 className="text-xl text-white">DOGE Mining</h3>
-            <input
-              type="number"
-              value={dogeQuantity}
-              onChange={(e) => setDogeQuantity(parseFloat(e.target.value))}
-              className="border p-2 mt-2 text-black"
-            />
-            <button className="bg-blue-500 text-black p-2 ml-2">BUY</button>
-          </div>
-
-          <h3 className="text-2xl text-white mt-4">My USDT: 0.3 USDT</h3>
-
-          <h3 className="text-2xl text-white mt-4">
-            Total USDT: {total.toFixed(6)} USDT
+          {/* Package Buy Section */}
+          <h2 className="text-4xl font-bold text-blue-400 mb-4 pt-20">
+            Package Buy
+          </h2>
+          <h3 className="text-2xl text-white mb-4">
+            My USDT: {usdtBalance} USDT
           </h3>
+
+          {loading ? (
+            <p>Loading...</p>
+          ) : error ? (
+            <p className="text-red-500">{error}</p>
+          ) : (
+            packages.map((pkg) => (
+              <div className="my-6" key={pkg.id}>
+                <h3 className="text-xl text-white">
+                  {pkg.name} ({pkg.price} USDT)
+                </h3>
+                <input
+                  type="number"
+                  value={quantities[pkg.id]}
+                  onChange={(e) =>
+                    setQuantities({
+                      ...quantities,
+                      [pkg.id]: Number(e.target.value),
+                    })
+                  }
+                  className="border p-2 mt-2 text-black"
+                />
+                <button
+                  className="bg-blue-500 text-black p-2 ml-2"
+                  onClick={() => handlePurchase(pkg.id)}
+                >
+                  BUY
+                </button>
+              </div>
+            ))
+          )}
         </div>
       </div>
     </div>

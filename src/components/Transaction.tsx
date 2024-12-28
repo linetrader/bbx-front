@@ -3,8 +3,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useAuth } from "@/context/AuthContext";
-import api from "@/utils/api";
+import { useGraphQL } from "@/utils/graphqlApi";
 import TransactionView from "@/components/TransactionView";
 
 interface Transaction {
@@ -12,71 +11,71 @@ interface Transaction {
   amount: string;
   token: string;
   transactionHash: string;
+  createdAt: string;
+}
+
+interface PurchaseRecord {
+  packageName: string;
+  quantity: number;
+  totalPrice: number;
+  createdAt: string;
 }
 
 export default function Transaction() {
-  const { token } = useAuth();
-  const [loading, setLoading] = useState(false);
+  const { graphqlRequest, loading, error, setError } = useGraphQL();
   const [transactions, setTransactions] = useState<Transaction[] | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const [purchases, setPurchases] = useState<PurchaseRecord[] | null>(null);
 
   const fetchTransactionData = async () => {
-    setLoading(true);
-    setError(null);
-
-    if (!token || typeof token !== "string") {
-      setError("Authentication token is missing.");
-      setLoading(false);
-      return;
-    }
-
     try {
-      const { data } = await api.post(
-        "/graphql",
-        {
-          query: `
-            query {
-              getTransactionList {
-                type
-                amount
-                token
-                transactionHash
-              }
-            }
-          `,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
+      const { data } = await graphqlRequest(
+        `query {
+          getTransactionList {
+            type
+            amount
+            token
+            transactionHash
+            createdAt
+          }
+        }`
       );
 
-      if (data.errors) {
-        const serverMessage =
-          data.errors[0]?.message ||
-          "An unexpected error occurred on the server.";
-        setError(serverMessage);
-        setLoading(false);
-        return;
-      }
-
-      setTransactions(data.data.getTransactionList);
+      setTransactions(data.getTransactionList);
     } catch (err: any) {
       setError(err.message || "An unexpected error occurred.");
       setTransactions(null);
-    } finally {
-      setLoading(false);
+    }
+  };
+
+  const fetchPurchaseRecords = async () => {
+    try {
+      const { data } = await graphqlRequest(
+        `query {
+          getPurchaseRecords {
+            packageName
+            quantity
+            totalPrice
+            createdAt
+          }
+        }`
+      );
+
+      setPurchases(data.getPurchaseRecords);
+    } catch (err: any) {
+      setError(err.message || "An unexpected error occurred.");
+      setPurchases(null);
     }
   };
 
   useEffect(() => {
     fetchTransactionData();
+    fetchPurchaseRecords();
   }, []);
 
   return (
     <TransactionView
       transactions={transactions}
+      purchases={purchases}
       loading={loading}
       error={error}
     />

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { graphqlRequest } from "@/utils/graphqlApi";
+import { useGraphQL } from "@/utils/graphqlApi";
 import RegisterView from "@/components/RegisterView";
 
 export default function Register() {
@@ -16,11 +16,12 @@ export default function Register() {
     referrer: "",
   });
 
-  const [error, setError] = useState("");
+  const { graphqlRequest, loading, error, setError } = useGraphQL();
   const [requiredFields, setRequiredFields] = useState<string[]>([]);
   const router = useRouter();
 
   const handleRegister = async () => {
+    // Check for missing required fields
     const missingFields = Object.entries(formData)
       .filter(([key, value]) => !value && key !== "referrer")
       .map(([key]) => key);
@@ -31,29 +32,48 @@ export default function Register() {
     }
     setRequiredFields([]);
 
+    // Check for password match
     if (formData.password !== formData.confirmPassword) {
       setError("Passwords do not match.");
       return;
     }
 
+    // Make GraphQL request for registration
     try {
       const { data, errors } = await graphqlRequest(
         `
-          mutation Register($input: RegisterInput!) {
-            register(input: $input)
+          mutation Register(
+            $email: String!
+            $username: String!
+            $firstname: String!
+            $lastname: String!
+            $password: String!
+            $referrer: String
+          ) {
+            register(
+              email: $email
+              username: $username
+              firstname: $firstname
+              lastname: $lastname
+              password: $password
+              referrer: $referrer
+            )
           }
         `,
-        { input: formData }
+        {
+          email: formData.email,
+          username: formData.username,
+          firstname: formData.firstname,
+          lastname: formData.lastname,
+          password: formData.password,
+          referrer: formData.referrer || null,
+        },
+        true // Skip auth check for registration
       );
-
-      if (errors) {
-        setError(errors[0]?.message || "Registration failed!");
-        return;
-      }
 
       router.push("/login");
     } catch (err: any) {
-      setError(err.message);
+      setError(err.message || "An unexpected error occurred.");
     }
   };
 

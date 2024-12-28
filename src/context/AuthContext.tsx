@@ -12,6 +12,7 @@ interface AuthContextType {
   login: (token: string) => void;
   logout: () => void;
   isAuthenticated: boolean;
+  isTokenValid: () => boolean;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -22,8 +23,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   useEffect(() => {
     const storedToken = localStorage.getItem("token");
+    //console.log("useEffect - storedToken", storedToken);
     if (storedToken) {
-      console.log(storedToken);
+      //console.log(storedToken);
       if (isTokenExpired(storedToken)) {
         handleTokenExpiration();
       } else {
@@ -33,13 +35,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }, []);
 
   useEffect(() => {
-    console.log(token);
+    //console.log("useEffect - token", token);
     if (token && isTokenExpired(token)) {
       handleTokenExpiration();
     }
   }, [token]);
 
   const isTokenExpired = (token: string) => {
+    //console.log("isTokenExpired - token", token);
     try {
       const decoded = jwtDecode<JwtPayload>(token);
       if (decoded.exp && decoded.exp * 1000 < Date.now()) {
@@ -50,6 +53,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       console.error("Error decoding token:", error);
       return true; // Treat invalid tokens as expired
     }
+  };
+
+  const isTokenValid = () => {
+    if (!token) return false;
+    return !isTokenExpired(token);
   };
 
   const handleTokenExpiration = () => {
@@ -73,7 +81,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const isAuthenticated = !!token;
 
   return (
-    <AuthContext.Provider value={{ token, login, logout, isAuthenticated }}>
+    <AuthContext.Provider
+      value={{ token, login, logout, isAuthenticated, isTokenValid }}
+    >
       {children}
     </AuthContext.Provider>
   );

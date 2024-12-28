@@ -21,7 +21,7 @@ interface RegisterViewProps {
       referrer: string;
     }>
   >;
-  error: string;
+  error: string | null;
   requiredFields: string[];
   handleRegister: () => void;
 }

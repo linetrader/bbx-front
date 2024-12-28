@@ -8,8 +8,8 @@ import Logo from "../assets/images/logos/LOGO.png"; // 로고 이미지 파일 �
 interface LoginViewProps {
   email: string;
   password: string;
-  error: string;
-  isLoading: boolean;
+  error: string | null;
+  loading: boolean;
   setEmail: (email: string) => void;
   setPassword: (password: string) => void;
   handleLogin: () => void;
@@ -19,7 +19,7 @@ export default function LoginView({
   email,
   password,
   error,
-  isLoading,
+  loading,
   setEmail,
   setPassword,
   handleLogin,
@@ -68,14 +68,14 @@ export default function LoginView({
         />
         <button
           onClick={handleLogin}
-          disabled={isLoading}
+          disabled={loading}
           className={`w-full py-2 rounded mb-4 font-semibold shadow-lg ${
-            isLoading
+            loading
               ? "bg-gray-500 cursor-not-allowed"
               : "bg-blue-500 hover:bg-blue-400 text-black"
           }`}
         >
-          {isLoading ? "Logging in..." : "Login"}
+          {loading ? "Logging in..." : "Login"}
         </button>
         <p className="text-center text-gray-300">
           Don't have an account?{" "}
