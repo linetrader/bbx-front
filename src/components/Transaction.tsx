@@ -33,29 +33,29 @@ export default function Transaction() {
   ];
 
   return (
-    <div className="flex flex-col min-h-screen bg-gradient-to-b from-gray-800 to-gray-900 text-gray-300 pt-3">
-      <div className="flex justify-center">
-        <div className="bg-gray-900 p-8 rounded-lg shadow-lg w-full max-w-md">
-          <h1 className="text-3xl font-bold text-center text-yellow-600 mb-6">
+    <div className="flex flex-col min-h-screen bg-gradient-to-b from-black via-gray-900 to-black text-white">
+      <main className="flex-grow pt-10">
+        <div className="w-[90%] max-w-xl mx-auto bg-gray-900/80 p-8 rounded-lg shadow-2xl border border-cyan-500">
+          <h1 className="text-4xl font-bold text-center text-cyan-400 mb-6 tracking-wide">
             Transactions
           </h1>
           {error && (
-            <div className="bg-red-100 text-red-700 border border-red-400 px-4 py-3 rounded mb-4">
+            <div className="bg-red-600/70 text-white border border-red-500 px-4 py-3 rounded mb-4 text-center">
               {error}
             </div>
           )}
           {loading ? (
-            <div className="text-center text-gray-500">Loading...</div>
+            <div className="text-center text-gray-400">Loading...</div>
           ) : (
             <>
               <div className="mb-4">
-                <h2 className="text-lg font-semibold text-gray-300 mb-2">
+                <h2 className="text-lg font-semibold text-cyan-400 mb-2">
                   Filter by Type
                 </h2>
                 <select
                   value={selectedType}
                   onChange={(e) => setSelectedType(e.target.value)}
-                  className="bg-gray-800 text-gray-300 border border-gray-700 rounded px-4 py-2 w-full"
+                  className="bg-gray-800 text-gray-300 border border-gray-700 rounded px-4 py-2 w-full focus:outline-none focus:ring-2 focus:ring-cyan-400"
                 >
                   {transactionTypes.map((type) => (
                     <option key={type.value} value={type.value}>
@@ -64,36 +64,32 @@ export default function Transaction() {
                   ))}
                 </select>
               </div>
-              <div
-                className="overflow-y-auto"
-                style={{
-                  height: "calc(100vh - 200px)",
-                  paddingBottom: "1rem",
-                  scrollbarWidth: "none", // For Firefox
-                  msOverflowStyle: "none", // For IE and Edge
-                }}
-              >
+              <div className="overflow-y-auto max-h-[400px] scrollbar-hide">
                 {filteredTransactions && filteredTransactions.length > 0 ? (
                   <div className="text-sm text-gray-300">
                     {filteredTransactions.map((transaction, index) => (
                       <div
                         key={index}
-                        className="mb-4 p-4 border rounded border-gray-700 bg-gray-800"
+                        className="mb-4 p-4 border rounded border-cyan-500 bg-gray-800"
                       >
                         <p className="mb-2">
-                          <span className="font-bold">Type:</span>{" "}
+                          <span className="font-bold text-cyan-400">Type:</span>{" "}
                           {transaction.type}
                         </p>
                         <p className="mb-2">
-                          <span className="font-bold">Amount:</span>{" "}
+                          <span className="font-bold text-cyan-400">
+                            Amount:
+                          </span>{" "}
                           {transaction.amount}
                         </p>
                         <p className="mb-2">
-                          <span className="font-bold">Token:</span>{" "}
+                          <span className="font-bold text-cyan-400">
+                            Token:
+                          </span>{" "}
                           {transaction.token}
                         </p>
                         <p className="mb-2">
-                          <span className="font-bold">Date:</span>{" "}
+                          <span className="font-bold text-cyan-400">Date:</span>{" "}
                           {new Date(
                             parseInt(transaction.createdAt, 10)
                           ).toLocaleString("en-US", {
@@ -106,10 +102,12 @@ export default function Transaction() {
                             second: "2-digit",
                             hour12: true,
                           })}
-                          {" (UTC 기준)"}
+                          {" (UTC)"}
                         </p>
                         <p>
-                          <span className="font-bold">Transaction Hash:</span>{" "}
+                          <span className="font-bold text-cyan-400">
+                            Transaction Hash:
+                          </span>{" "}
                           {transaction.transactionHash}
                         </p>
                       </div>
@@ -121,22 +119,28 @@ export default function Transaction() {
                     {filteredPurchases.map((purchase, index) => (
                       <div
                         key={index}
-                        className="mb-4 p-4 border rounded border-gray-700 bg-gray-800"
+                        className="mb-4 p-4 border rounded border-cyan-500 bg-gray-800"
                       >
                         <p className="mb-2">
-                          <span className="font-bold">Package Name:</span>{" "}
+                          <span className="font-bold text-cyan-400">
+                            Package Name:
+                          </span>{" "}
                           {purchase.packageName}
                         </p>
                         <p className="mb-2">
-                          <span className="font-bold">Quantity:</span>{" "}
+                          <span className="font-bold text-cyan-400">
+                            Quantity:
+                          </span>{" "}
                           {purchase.quantity}
                         </p>
                         <p className="mb-2">
-                          <span className="font-bold">Total Price:</span>{" "}
+                          <span className="font-bold text-cyan-400">
+                            Total Price:
+                          </span>{" "}
                           {purchase.totalPrice}
                         </p>
                         <p className="mb-2">
-                          <span className="font-bold">Date:</span>{" "}
+                          <span className="font-bold text-cyan-400">Date:</span>{" "}
                           {new Date(
                             parseInt(purchase.createdAt, 10)
                           ).toLocaleString("en-US", {
@@ -149,7 +153,7 @@ export default function Transaction() {
                             second: "2-digit",
                             hour12: true,
                           })}
-                          {" (UTC 기준)"}
+                          {" (UTC)"}
                         </p>
                       </div>
                     ))}
@@ -159,7 +163,7 @@ export default function Transaction() {
             </>
           )}
         </div>
-      </div>
+      </main>
     </div>
   );
 }

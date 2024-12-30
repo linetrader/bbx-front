@@ -25,9 +25,9 @@ export function useGraphQL() {
 
     // 토큰 유효성 확인
     if (!skipAuthCheck && (!token || !isTokenValid())) {
-      console.log(skipAuthCheck);
-      console.log(token);
-      console.log(isTokenValid());
+      //console.log(skipAuthCheck);
+      //console.log(token);
+      //console.log(isTokenValid());
       setError("Authentication token is missing or invalid.");
       logout(); // 유효하지 않으면 로그아웃 처리
       setLoading(false);
@@ -43,7 +43,11 @@ export function useGraphQL() {
         headers.Authorization = `Bearer ${token}`;
       }
 
-      //console.log("headers : ", headers);
+      // 디버깅 로그 추가
+      //console.log("GraphQL Request URL:", api.defaults.baseURL + "/graphql");
+      //console.log("Request Headers:", headers);
+      //console.log("GraphQL Query:", query);
+      //console.log("Variables:", variables);
 
       const response = await api.post(
         "/graphql",

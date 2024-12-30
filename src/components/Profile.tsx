@@ -15,7 +15,7 @@ export default function Profile() {
     isOtpEnabled,
     handleGenerateOtp,
     handleVerifyAndSaveOtp,
-    setIsOtpEnabled, // 추가
+    setIsOtpEnabled,
   } = useProfile();
 
   const [isModalOpen, setModalOpen] = useState(false);
@@ -37,7 +37,7 @@ export default function Profile() {
     const isVerified = await handleVerifyAndSaveOtp(otpInput);
     if (isVerified) {
       setSuccessMessage("OTP successfully registered.");
-      setIsOtpEnabled(true); // Update the OTP status to 'On'
+      setIsOtpEnabled(true);
       setModalOpen(false);
       setOtpInput("");
     } else {
@@ -50,15 +50,26 @@ export default function Profile() {
     setOtpInput("");
   };
 
+  const containerStyles =
+    "bg-gray-900/80 p-8 rounded-lg shadow-2xl w-full max-w-md border border-cyan-500";
+  const buttonStyles =
+    "mt-4 w-full py-3 bg-cyan-500 hover:bg-cyan-400 text-black font-bold rounded shadow-lg";
+  const inputStyles =
+    "w-full px-4 py-3 border border-cyan-500 rounded bg-gray-800 text-white focus:outline-none focus:ring-2 focus:ring-cyan-400 placeholder-gray-500";
+
   return (
-    <div className="flex flex-col min-h-screen bg-gradient-to-b from-gray-800 to-gray-900 text-gray-300">
-      <div className="flex-grow flex items-start justify-center pt-24">
-        <div className="bg-gray-900 p-8 rounded-lg shadow-lg w-full max-w-md">
-          <h1 className="text-3xl font-bold text-center text-yellow-600 mb-6">
+    <div className="flex flex-col min-h-screen bg-gradient-to-b from-black via-gray-900 to-black text-white">
+      <main className="flex-grow flex items-start justify-center pt-24">
+        <div className={containerStyles}>
+          <h1 className="text-4xl font-bold text-center text-cyan-400 mb-6 tracking-wide">
             Profile
           </h1>
           {error && (
-            <div className="bg-red-100 text-red-700 border border-red-400 px-4 py-3 rounded mb-4">
+            <div
+              className="bg-red-600/70 text-white border border-red-500 px-4 py-3 rounded mb-4 text-center"
+              role="alert"
+              aria-live="polite"
+            >
               {error}
             </div>
           )}
@@ -66,29 +77,29 @@ export default function Profile() {
             <div className="text-center text-gray-500">Loading...</div>
           ) : userData ? (
             <div className="text-sm text-gray-300">
-              <div className="mb-4 p-4 border rounded border-gray-700 bg-gray-800">
+              <div className="mb-4 p-4 border rounded border-cyan-500 bg-gray-800">
                 <p className="mb-2">
-                  <span className="font-bold text-yellow-600">Username:</span>{" "}
+                  <span className="font-bold text-cyan-400">Username:</span>{" "}
                   {userData.username}
                 </p>
                 <p className="mb-2">
-                  <span className="font-bold text-yellow-600">Email:</span>{" "}
+                  <span className="font-bold text-cyan-400">Email:</span>{" "}
                   {userData.email}
                 </p>
                 <p className="mb-2">
-                  <span className="font-bold text-yellow-600">First Name:</span>{" "}
+                  <span className="font-bold text-cyan-400">First Name:</span>{" "}
                   {userData.firstname}
                 </p>
                 <p className="mb-2">
-                  <span className="font-bold text-yellow-600">Last Name:</span>{" "}
+                  <span className="font-bold text-cyan-400">Last Name:</span>{" "}
                   {userData.lastname}
                 </p>
                 <p className="mb-2 flex items-center">
-                  <span className="font-bold text-yellow-600">OTP Status:</span>{" "}
+                  <span className="font-bold text-cyan-400">OTP Status:</span>
                   <span className="ml-2">{isOtpEnabled ? "On" : "Off"}</span>
                   {!isOtpEnabled && (
                     <button
-                      className="bg-yellow-500 hover:bg-yellow-700 text-gray-300 font-bold py-1 px-2 rounded ml-4"
+                      className="bg-cyan-500 hover:bg-cyan-400 text-black font-bold py-1 px-2 rounded ml-4"
                       onClick={handleGenerateOtpWithModal}
                     >
                       Generate OTP
@@ -97,7 +108,7 @@ export default function Profile() {
                 </p>
               </div>
               {successMessage && (
-                <div className="bg-green-100 text-green-700 border border-green-400 px-4 py-3 rounded mb-4">
+                <div className="bg-green-500 text-black border border-green-400 px-4 py-3 rounded mb-4">
                   {successMessage}
                 </div>
               )}
@@ -108,36 +119,31 @@ export default function Profile() {
             </div>
           )}
         </div>
-      </div>
+      </main>
       {otpData && (
         <Modal isOpen={isModalOpen} onClose={handleCloseModal}>
           {step === "qr" ? (
             <div className="p-6">
-              <h2 className="text-xl font-bold text-yellow-600 mb-4">
+              <h2 className="text-2xl font-bold text-cyan-400 mb-4">
                 Your OTP
               </h2>
-              <p className="text-yellow-600 font-bold mb-2">
-                Scan this QR Code:
-              </p>
+              <p className="text-cyan-400 font-bold mb-2">Scan this QR Code:</p>
               <img
                 src={otpData.qrCode}
                 alt="OTP QR Code"
-                className="mt-2 border border-gray-700 rounded mb-4"
+                className="mt-2 border border-cyan-500 rounded mb-4"
               />
               <p className="text-sm text-gray-400">
-                <span className="font-bold text-yellow-600">Manual Key:</span>{" "}
+                <span className="font-bold text-cyan-400">Manual Key:</span>{" "}
                 {otpData.manualKey}
               </p>
-              <button
-                className="mt-4 w-full py-2 bg-yellow-500 hover:bg-yellow-700 text-gray-300 font-bold rounded"
-                onClick={handleNextStep}
-              >
+              <button className={buttonStyles} onClick={handleNextStep}>
                 Next
               </button>
             </div>
           ) : (
             <div className="p-6">
-              <h2 className="text-xl font-bold text-yellow-600 mb-4">
+              <h2 className="text-2xl font-bold text-cyan-400 mb-4">
                 Verify OTP
               </h2>
               <p className="text-sm text-gray-400 mb-4">
@@ -148,12 +154,9 @@ export default function Profile() {
                 value={otpInput}
                 onChange={(e) => setOtpInput(e.target.value)}
                 placeholder="Enter OTP"
-                className="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-yellow-500 bg-gray-800 text-gray-300 mb-4"
+                className={inputStyles}
               />
-              <button
-                className="mt-4 w-full py-2 bg-green-500 hover:bg-green-700 text-gray-300 font-bold rounded"
-                onClick={handleVerifyOtp}
-              >
+              <button className={buttonStyles} onClick={handleVerifyOtp}>
                 Verify
               </button>
             </div>

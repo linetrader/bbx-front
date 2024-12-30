@@ -2,11 +2,11 @@
 
 "use client";
 
-import Home from "@/components/Home";
 import Package from "@/components/Package";
-import Wallet from "@/components/Wallet";
+import Wallet from "@/components/wallet/Wallet";
 import Transaction from "@/components/Transaction";
 import Profile from "@/components/Profile";
+import Dashboard from "@/components/Dashboard";
 
 export default function MainContent({
   activeScreen,
@@ -15,7 +15,7 @@ export default function MainContent({
 }) {
   switch (activeScreen) {
     case "Home":
-      return <Home />;
+      return <Dashboard />;
     case "Package":
       return <Package />;
     case "Wallet":
