@@ -33,10 +33,10 @@ export default function Transaction() {
   ];
 
   return (
-    <div className="flex flex-col min-h-screen bg-gradient-to-b from-gray-800 to-gray-900 text-white pt-3">
+    <div className="flex flex-col min-h-screen bg-gradient-to-b from-gray-800 to-gray-900 text-gray-300 pt-3">
       <div className="flex justify-center">
         <div className="bg-gray-900 p-8 rounded-lg shadow-lg w-full max-w-md">
-          <h1 className="text-3xl font-bold text-center text-blue-400 mb-6">
+          <h1 className="text-3xl font-bold text-center text-yellow-600 mb-6">
             Transactions
           </h1>
           {error && (
@@ -55,7 +55,7 @@ export default function Transaction() {
                 <select
                   value={selectedType}
                   onChange={(e) => setSelectedType(e.target.value)}
-                  className="bg-gray-800 text-white border border-gray-700 rounded px-4 py-2 w-full"
+                  className="bg-gray-800 text-gray-300 border border-gray-700 rounded px-4 py-2 w-full"
                 >
                   {transactionTypes.map((type) => (
                     <option key={type.value} value={type.value}>
@@ -67,12 +67,14 @@ export default function Transaction() {
               <div
                 className="overflow-y-auto"
                 style={{
-                  height: "calc(100vh - 400px)",
+                  height: "calc(100vh - 200px)",
                   paddingBottom: "1rem",
+                  scrollbarWidth: "none", // For Firefox
+                  msOverflowStyle: "none", // For IE and Edge
                 }}
               >
                 {filteredTransactions && filteredTransactions.length > 0 ? (
-                  <div className="text-sm text-white">
+                  <div className="text-sm text-gray-300">
                     {filteredTransactions.map((transaction, index) => (
                       <div
                         key={index}
@@ -115,7 +117,7 @@ export default function Transaction() {
                   </div>
                 ) : null}
                 {filteredPurchases && filteredPurchases.length > 0 && (
-                  <div className="text-sm text-white">
+                  <div className="text-sm text-gray-300">
                     {filteredPurchases.map((purchase, index) => (
                       <div
                         key={index}

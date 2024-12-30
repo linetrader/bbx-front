@@ -28,13 +28,13 @@ export default function FooterNavigation({
 
   const buttonClass = (screen: string) =>
     activeScreen === screen
-      ? "w-16 h-16 flex items-center justify-center bg-gradient-to-r from-blue-400 to-blue-300 text-gray-900 rounded-full hover:from-blue-500 hover:to-blue-400"
-      : "w-16 h-16 flex items-center justify-center bg-gray-900 text-blue-400 rounded-full";
+      ? "w-16 h-16 flex items-center justify-center bg-gradient-to-r from-yellow-600 to-yellow-300 text-gray-900 rounded-full hover:from-yellow-500 hover:to-yellow-400"
+      : "w-16 h-16 flex items-center justify-center bg-gray-900 text-yellow-600 rounded-full";
 
   const textClass = (screen: string) =>
     activeScreen === screen
-      ? "mt-2 text-sm font-semibold text-blue-300"
-      : "mt-2 text-sm font-semibold text-blue-400 hover:text-blue-300";
+      ? "mt-2 text-sm font-semibold text-yellow-300"
+      : "mt-2 text-sm font-semibold text-yellow-600 hover:text-yellow-300";
 
   return (
     <footer className="fixed bottom-0 left-1/2 transform -translate-x-1/2 w-full max-w-md bg-gray-900 shadow-lg">

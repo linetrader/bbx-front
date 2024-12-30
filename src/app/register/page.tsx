@@ -2,6 +2,7 @@
 
 import React from "react";
 import { useRegister } from "@/hooks/useRegister";
+import { useRouter } from "next/navigation";
 
 export default function Register() {
   const {
@@ -13,14 +14,16 @@ export default function Register() {
     requiredFields,
   } = useRegister();
 
+  const router = useRouter();
+
   const handleChange = (field: string, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-b from-gray-800 to-gray-900 text-white">
-      <div className="bg-gray-800 p-8 rounded-lg shadow-md w-full max-w-md">
-        <h1 className="text-3xl font-bold mb-6 text-center text-yellow-400">
+      <div className="bg-gray-700 p-8 rounded-lg shadow-md w-full max-w-md">
+        <h1 className="text-3xl font-bold mb-6 text-center text-yellow-600">
           Register
         </h1>
         {error && (
@@ -100,14 +103,25 @@ export default function Register() {
         <button
           onClick={handleRegister}
           disabled={loading}
-          className={`w-full py-2 rounded font-semibold shadow-lg ${
+          className={`w-full py-2 rounded font-semibold text-gray-100 shadow-lg mb-4 ${
             loading
               ? "bg-gray-500 cursor-not-allowed"
-              : "bg-yellow-500 hover:bg-yellow-400"
+              : "bg-yellow-600 hover:bg-yellow-500"
           }`}
         >
           {loading ? "Registering..." : "Register"}
         </button>
+        <div className="text-center mt-4">
+          <p className="text-gray-300">
+            Already have an account?{" "}
+            <span
+              onClick={() => router.push("/login")}
+              className="text-yellow-400 cursor-pointer hover:underline"
+            >
+              Login here
+            </span>
+          </p>
+        </div>
       </div>
     </div>
   );
