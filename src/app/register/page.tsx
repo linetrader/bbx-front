@@ -21,9 +21,9 @@ export default function Register() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-black via-gray-900 to-black text-white flex flex-col items-center justify-center">
+    <div className="min-h-screen bg-gradient-to-b from-black via-gray-900 to-black text-white flex flex-col items-center justify-center overflow-y-auto scrollbar-hide">
       {/* 메인 컨텐츠 */}
-      <main className="bg-gray-900/80 p-8 rounded-lg shadow-2xl w-full max-w-lg border border-cyan-500 -mt-40">
+      <main className="w-[85%] bg-gray-900/80 p-8 rounded-lg shadow-2xl w-full max-w-lg border border-cyan-500 -mt-20">
         <h1 className="text-4xl font-bold text-center text-cyan-400 mb-6 tracking-wide">
           Register
         </h1>

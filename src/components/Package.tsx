@@ -1,3 +1,5 @@
+// src/components/Package.tsx
+
 "use client";
 
 import React from "react";
@@ -8,7 +10,7 @@ export default function Package() {
     packages,
     quantities,
     usdtBalance,
-    purchaseRecords,
+    userPackages,
     loading,
     error,
     setQuantities,
@@ -82,11 +84,11 @@ export default function Package() {
                 Wallet not found. Please create a wallet.
               </div>
             )}
-            {purchaseRecords.length > 0 ? (
+            {userPackages.length > 0 ? (
               <ul className="list-disc pl-5 text-gray-300">
-                {purchaseRecords.map((record) => (
-                  <li key={record.packageName} className="mb-2">
-                    {record.packageName} - {record.quantity}
+                {userPackages.map((record) => (
+                  <li key={record.packageType} className="mb-2">
+                    {record.packageType} mining - {record.quantity}
                   </li>
                 ))}
               </ul>

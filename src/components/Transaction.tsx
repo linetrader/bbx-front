@@ -6,14 +6,7 @@ import React, { useState } from "react";
 import { useTransaction } from "@/hooks/useTransaction";
 
 export default function Transaction() {
-  const {
-    transactions,
-    purchases,
-    loading,
-    error,
-    fetchTransactionData,
-    fetchPurchaseRecords,
-  } = useTransaction();
+  const { transactions, purchases, loading, error } = useTransaction();
   const [selectedType, setSelectedType] = useState<string>("deposit");
 
   // 필터링된 트랜잭션
@@ -36,22 +29,23 @@ export default function Transaction() {
     <div className="flex flex-col min-h-screen bg-gradient-to-b from-black via-gray-900 to-black text-white">
       <main className="flex-grow pt-10">
         <div className="w-[90%] max-w-xl mx-auto bg-gray-900/80 p-8 rounded-lg shadow-2xl border border-cyan-500">
-          <h1 className="text-4xl font-bold text-center text-cyan-400 mb-6 tracking-wide">
+          <h1 className="text-4xl font-bold text-center text-cyan-400 mb-8 tracking-wide">
             Transactions
           </h1>
-          {error && (
-            <div className="bg-red-600/70 text-white border border-red-500 px-4 py-3 rounded mb-4 text-center">
-              {error}
-            </div>
-          )}
+
           {loading ? (
             <div className="text-center text-gray-400">Loading...</div>
+          ) : error ? (
+            <div className="text-center bg-red-500 text-white py-2 px-4 rounded">
+              Error: {error}
+            </div>
           ) : (
-            <>
-              <div className="mb-4">
-                <h2 className="text-lg font-semibold text-cyan-400 mb-2">
-                  Filter by Type
-                </h2>
+            <div className="space-y-8">
+              {/* Filter Section */}
+              <div className="p-4 bg-gray-800 rounded-lg border border-cyan-500">
+                <h3 className="text-2xl font-bold text-cyan-400 mb-4">
+                  Filter Transactions
+                </h3>
                 <select
                   value={selectedType}
                   onChange={(e) => setSelectedType(e.target.value)}
@@ -64,47 +58,42 @@ export default function Transaction() {
                   ))}
                 </select>
               </div>
-              <div className="overflow-y-auto max-h-[400px] scrollbar-hide">
-                {filteredTransactions && filteredTransactions.length > 0 ? (
-                  <div className="text-sm text-gray-300">
+
+              {/* Transactions Section */}
+              {filteredTransactions && filteredTransactions.length > 0 && (
+                <div className="p-4 bg-gray-800 rounded-lg border border-cyan-500">
+                  <h3 className="text-2xl font-bold text-cyan-400 mb-4">
+                    Filtered Transactions
+                  </h3>
+                  <div className="space-y-4">
                     {filteredTransactions.map((transaction, index) => (
                       <div
                         key={index}
-                        className="mb-4 p-4 border rounded border-cyan-500 bg-gray-800"
+                        className="p-4 bg-gray-900 rounded-lg border border-cyan-500"
                       >
-                        <p className="mb-2">
+                        <p className="text-lg text-gray-300">
                           <span className="font-bold text-cyan-400">Type:</span>{" "}
                           {transaction.type}
                         </p>
-                        <p className="mb-2">
+                        <p className="text-lg text-gray-300">
                           <span className="font-bold text-cyan-400">
                             Amount:
                           </span>{" "}
                           {transaction.amount}
                         </p>
-                        <p className="mb-2">
+                        <p className="text-lg text-gray-300">
                           <span className="font-bold text-cyan-400">
                             Token:
                           </span>{" "}
                           {transaction.token}
                         </p>
-                        <p className="mb-2">
+                        <p className="text-lg text-gray-300">
                           <span className="font-bold text-cyan-400">Date:</span>{" "}
                           {new Date(
                             parseInt(transaction.createdAt, 10)
-                          ).toLocaleString("en-US", {
-                            timeZone: "UTC",
-                            year: "numeric",
-                            month: "2-digit",
-                            day: "2-digit",
-                            hour: "2-digit",
-                            minute: "2-digit",
-                            second: "2-digit",
-                            hour12: true,
-                          })}
-                          {" (UTC)"}
+                          ).toLocaleString()}
                         </p>
-                        <p>
+                        <p className="text-lg text-gray-300">
                           <span className="font-bold text-cyan-400">
                             Transaction Hash:
                           </span>{" "}
@@ -113,54 +102,58 @@ export default function Transaction() {
                       </div>
                     ))}
                   </div>
-                ) : null}
-                {filteredPurchases && filteredPurchases.length > 0 && (
-                  <div className="text-sm text-gray-300">
+                </div>
+              )}
+
+              {/* Purchases Section */}
+              {filteredPurchases && filteredPurchases.length > 0 && (
+                <div className="p-4 bg-gray-800 rounded-lg border border-cyan-500">
+                  <h3 className="text-2xl font-bold text-cyan-400 mb-4">
+                    Package Purchases
+                  </h3>
+                  <div className="space-y-4">
                     {filteredPurchases.map((purchase, index) => (
                       <div
                         key={index}
-                        className="mb-4 p-4 border rounded border-cyan-500 bg-gray-800"
+                        className="p-4 bg-gray-900 rounded-lg border border-cyan-500"
                       >
-                        <p className="mb-2">
+                        <p className="text-lg text-gray-300">
                           <span className="font-bold text-cyan-400">
                             Package Name:
                           </span>{" "}
                           {purchase.packageName}
                         </p>
-                        <p className="mb-2">
+                        <p className="text-lg text-gray-300">
                           <span className="font-bold text-cyan-400">
                             Quantity:
                           </span>{" "}
                           {purchase.quantity}
                         </p>
-                        <p className="mb-2">
+                        <p className="text-lg text-gray-300">
                           <span className="font-bold text-cyan-400">
                             Total Price:
                           </span>{" "}
                           {purchase.totalPrice}
                         </p>
-                        <p className="mb-2">
+                        <p className="text-lg text-gray-300">
                           <span className="font-bold text-cyan-400">Date:</span>{" "}
                           {new Date(
                             parseInt(purchase.createdAt, 10)
-                          ).toLocaleString("en-US", {
-                            timeZone: "UTC",
-                            year: "numeric",
-                            month: "2-digit",
-                            day: "2-digit",
-                            hour: "2-digit",
-                            minute: "2-digit",
-                            second: "2-digit",
-                            hour12: true,
-                          })}
-                          {" (UTC)"}
+                          ).toLocaleString()}
                         </p>
                       </div>
                     ))}
                   </div>
-                )}
-              </div>
-            </>
+                </div>
+              )}
+
+              {/* No Data Message */}
+              {!filteredTransactions?.length && !filteredPurchases?.length && (
+                <div className="text-center text-gray-500">
+                  No Data Available
+                </div>
+              )}
+            </div>
           )}
         </div>
       </main>

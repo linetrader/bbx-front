@@ -44,7 +44,7 @@ export default function Login() {
         </div>
 
         {/* 로그인 폼 */}
-        <div className="bg-gray-900/80 p-8 rounded-lg shadow-2xl w-full max-w-md border border-cyan-500 -mt-20">
+        <div className="w-[80%] bg-gray-900/80 p-8 rounded-lg shadow-2xl w-full max-w-md border border-cyan-500 -mt-20">
           <h1 className="text-4xl font-bold text-center text-cyan-400 mb-6 tracking-wide">
             Login
           </h1>

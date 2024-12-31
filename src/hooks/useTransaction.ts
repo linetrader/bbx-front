@@ -45,7 +45,7 @@ export function useTransaction() {
     try {
       const { data } = await graphqlRequest(
         `query {
-          getPurchaseRecords {
+          getPackageRecords {
             packageName
             quantity
             totalPrice
@@ -53,7 +53,7 @@ export function useTransaction() {
           }
         }`
       );
-      setPurchases(data.getPurchaseRecords);
+      setPurchases(data.getPackageRecords);
     } catch (err: any) {
       setError(err.message || "An unexpected error occurred.");
       setPurchases(null);

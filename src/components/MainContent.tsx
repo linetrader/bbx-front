@@ -8,6 +8,9 @@ import Transaction from "@/components/Transaction";
 import Profile from "@/components/Profile";
 import Dashboard from "@/components/Dashboard";
 
+const contentStyle =
+  "h-full overflow-y-auto scrollbar-hide max-h-[calc(100vh-160px)] -mt-8";
+
 export default function MainContent({
   activeScreen,
 }: {
@@ -15,20 +18,37 @@ export default function MainContent({
 }) {
   switch (activeScreen) {
     case "Home":
-      return <Dashboard />;
-    case "Package":
-      return <Package />;
-    case "Wallet":
-      return <Wallet />;
-    case "Transaction":
-      return <Transaction />;
-    case "Profile":
-      return <Profile />;
-    default:
       return (
-        <div className="text-center">
-          <h2 className="text-4xl font-bold text-yellow-400 mb-4">Welcome</h2>
-          <p className="text-lg text-gray-300">Your personalized dashboard</p>
+        <div className={contentStyle}>
+          <Dashboard />
+        </div>
+      );
+
+    case "Package":
+      return (
+        <div className={contentStyle}>
+          <Package />
+        </div>
+      );
+
+    case "Wallet":
+      return (
+        <div className={contentStyle}>
+          <Wallet />
+        </div>
+      );
+
+    case "Transaction":
+      return (
+        <div className={contentStyle}>
+          <Transaction />
+        </div>
+      );
+
+    case "Profile":
+      return (
+        <div className={contentStyle}>
+          <Profile />
         </div>
       );
   }

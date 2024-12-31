@@ -13,9 +13,21 @@ export default function Dashboard() {
 
   return (
     <div className="relative flex flex-col min-h-screen bg-gradient-to-b from-gray-800 to-gray-900 text-white">
-      <Header menuOpen={menuOpen} setMenuOpen={setMenuOpen} />
-      <MainContent activeScreen={activeScreen} />
-      <FooterNavigation setActiveScreen={setActiveScreen} />
+      {/* Header Section */}
+      <div className="w-full max-w-4xl bg-gray-900 shadow-md z-10 mx-auto">
+        <Header menuOpen={menuOpen} setMenuOpen={setMenuOpen} />
+      </div>
+
+      {/* Main Content Section */}
+      <div className="flex-grow w-full max-w-4xl p-4 mx-auto">
+        {/* `pb-[80px]` ensures no overlap with FooterNavigation */}
+        <MainContent activeScreen={activeScreen} />
+      </div>
+
+      {/* Footer Navigation Section */}
+      <div className="fixed bottom-0 w-full max-w-4xl bg-gray-900/90 shadow-t-lg z-20 mx-auto">
+        <FooterNavigation setActiveScreen={setActiveScreen} />
+      </div>
     </div>
   );
 }

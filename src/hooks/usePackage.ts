@@ -1,3 +1,5 @@
+// src/hooks/usePackage.ts
+
 import { useState, useEffect } from "react";
 import { useGraphQL } from "../utils/graphqlApi";
 
@@ -7,8 +9,8 @@ interface Package {
   price: string;
 }
 
-interface PurchaseRecord {
-  packageName: string;
+interface UserPackage {
+  packageType: string;
   quantity: number;
 }
 
@@ -17,13 +19,15 @@ export function usePackage() {
   const [packages, setPackages] = useState<Package[]>([]);
   const [quantities, setQuantities] = useState<{ [key: string]: number }>({});
   const [usdtBalance, setUsdtBalance] = useState(0.0);
-  const [purchaseRecords, setPurchaseRecords] = useState<PurchaseRecord[]>([]);
+  const [userPackages, setUserPackages] = useState<UserPackage[]>([]);
 
   const fetchPackages = async () => {
     try {
       const { data } = await graphqlRequest(
         `query { getPackages { id name price } }`
       );
+
+      //console.log("fetchPackages", data.getPackages);
 
       setPackages(data.getPackages);
 
@@ -34,6 +38,8 @@ export function usePackage() {
         },
         {}
       );
+
+      //console.log("fetchPackages", initialQuantities);
 
       setQuantities(initialQuantities);
     } catch (err: any) {
@@ -47,32 +53,22 @@ export function usePackage() {
         `query { getWalletInfo { usdtBalance } }`
       );
 
+      //console.log("fetchUsdtBalance", data.getWalletInfo.usdtBalance);
+
       setUsdtBalance(data.getWalletInfo.usdtBalance);
     } catch (err: any) {
       setError(err.message || "An unexpected error occurred.");
     }
   };
 
-  const fetchPurchaseRecords = async () => {
+  // 3. 유저의 패키지 수량 가져오기
+  const fetchUserPackages = async () => {
     try {
       const { data } = await graphqlRequest(
-        `query { getPurchaseRecords { packageName quantity } }`
+        `query { getUserPackages { packageType quantity } }`
       );
 
-      const aggregatedRecords: PurchaseRecord[] = Object.values(
-        data.getPurchaseRecords.reduce((acc: any, record: any) => {
-          if (!acc[record.packageName]) {
-            acc[record.packageName] = {
-              packageName: record.packageName,
-              quantity: 0,
-            };
-          }
-          acc[record.packageName].quantity += record.quantity;
-          return acc;
-        }, {})
-      );
-
-      setPurchaseRecords(aggregatedRecords);
+      setUserPackages(data.getUserPackages);
     } catch (err: any) {
       setError(err.message || "An unexpected error occurred.");
     }
@@ -95,7 +91,7 @@ export function usePackage() {
       );
 
       fetchUsdtBalance();
-      fetchPurchaseRecords();
+      fetchUserPackages();
       alert(data.purchasePackage);
     } catch (err: any) {
       setError(err.message || "An unexpected error occurred.");
@@ -105,14 +101,14 @@ export function usePackage() {
   useEffect(() => {
     fetchPackages();
     fetchUsdtBalance();
-    fetchPurchaseRecords();
+    fetchUserPackages();
   }, []);
 
   return {
     packages,
     quantities,
     usdtBalance,
-    purchaseRecords,
+    userPackages,
     loading,
     error,
     setQuantities,
