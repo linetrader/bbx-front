@@ -2,6 +2,7 @@
 "use client";
 
 import React from "react";
+import { FiCopy } from "react-icons/fi"; // React Icons에서 복사 아이콘 가져오기
 
 interface DepositSectionProps {
   error: string | null;
@@ -16,6 +17,15 @@ export default function DepositSection({
   walletData,
   createWallet,
 }: DepositSectionProps) {
+  const handleCopy = async (text: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      alert("Wallet address copied to clipboard!");
+    } catch (err) {
+      alert("Failed to copy wallet address. Please try again.");
+    }
+  };
+
   return (
     <div>
       <h1 className="text-4xl font-bold text-center text-cyan-400 mb-6 tracking-wide">
@@ -41,11 +51,19 @@ export default function DepositSection({
       ) : walletData ? (
         <div className="text-left">
           <div className="mb-4 p-4 border rounded border-cyan-500 bg-gray-800">
-            <div className="mb-4">
-              <p className="text-cyan-400 font-bold">Wallet Address:</p>
-              <p className="font-mono break-all text-gray-300">
-                {walletData.address}
-              </p>
+            <div className="mb-4 flex items-center justify-between">
+              <div>
+                <p className="text-cyan-400 font-bold">Wallet Address:</p>
+                <p className="font-mono break-all text-gray-300">
+                  {walletData.address}
+                </p>
+              </div>
+              <button
+                onClick={() => handleCopy(walletData.address)}
+                className="ml-4 p-2 rounded-full bg-gray-700 hover:bg-cyan-500 text-white transition"
+              >
+                <FiCopy size={20} /> {/* 복사 아이콘 추가 */}
+              </button>
             </div>
             <div className="mb-4">
               <p className="text-cyan-400 font-bold">USDT Balance:</p>

@@ -3,11 +3,21 @@
 "use client";
 
 import React, { useState } from "react";
+import { FiCopy } from "react-icons/fi";
 import { useTransaction } from "@/hooks/useTransaction";
 
 export default function Transaction() {
   const { transactions, purchases, loading, error } = useTransaction();
   const [selectedType, setSelectedType] = useState<string>("deposit");
+
+  const handleCopy = async (text: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      alert("Transaction hash copied to clipboard!");
+    } catch (err) {
+      alert("Failed to copy transaction hash. Please try again.");
+    }
+  };
 
   // 필터링된 트랜잭션
   const filteredTransactions = transactions?.filter(
@@ -93,11 +103,21 @@ export default function Transaction() {
                             parseInt(transaction.createdAt, 10)
                           ).toLocaleString()}
                         </p>
-                        <p className="text-lg text-gray-300">
+                        <p className="text-lg text-gray-300 flex items-center gap-2">
                           <span className="font-bold text-cyan-400">
                             Transaction Hash:
                           </span>{" "}
-                          {transaction.transactionHash}
+                          <span className="break-all">
+                            {transaction.transactionHash.slice(0, 10)}...
+                          </span>
+                          <button
+                            onClick={() =>
+                              handleCopy(transaction.transactionHash)
+                            }
+                            className="p-1 rounded-full bg-gray-700 hover:bg-cyan-500 text-white transition"
+                          >
+                            <FiCopy size={16} />
+                          </button>
                         </p>
                       </div>
                     ))}

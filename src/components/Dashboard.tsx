@@ -26,7 +26,7 @@ export default function Dashboard() {
               {/* Mining Data Section */}
               <div className="p-4 bg-gray-800 rounded-lg border border-cyan-500">
                 <h3 className="text-2xl font-bold text-cyan-400 mb-4">
-                  Mining Data
+                  Mining Profit
                 </h3>
                 <p className="text-lg text-gray-300 mb-2">
                   <span className="font-bold text-cyan-400">BTC Mined:</span>{" "}

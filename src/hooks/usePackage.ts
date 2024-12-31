@@ -27,7 +27,7 @@ export function usePackage() {
         `query { getPackages { id name price } }`
       );
 
-      //console.log("fetchPackages", data.getPackages);
+      console.log("fetchPackages", data.getPackages);
 
       setPackages(data.getPackages);
 
@@ -65,10 +65,10 @@ export function usePackage() {
   const fetchUserPackages = async () => {
     try {
       const { data } = await graphqlRequest(
-        `query { getUserPackages { packageType quantity } }`
+        `query { getUserMiningData { packageType quantity } }`
       );
 
-      setUserPackages(data.getUserPackages);
+      setUserPackages(data.getUserMiningData);
     } catch (err: any) {
       setError(err.message || "An unexpected error occurred.");
     }

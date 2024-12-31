@@ -48,7 +48,7 @@ export default function Package() {
                 className="mb-6 p-4 border rounded border-cyan-500 bg-gray-800"
               >
                 <h3 className="text-xl font-bold text-cyan-400 mb-4">
-                  {pkg.name} ({pkg.price} USDT)
+                  {pkg.name} mining ({pkg.price} USDT)
                 </h3>
                 <div className="flex items-center gap-4">
                   <input

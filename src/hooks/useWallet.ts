@@ -1,6 +1,12 @@
 // hooks/useWallet.ts
 import { useState, useEffect } from "react";
 import { useGraphQL } from "@/utils/graphqlApi";
+import { io, Socket } from "socket.io-client";
+
+interface DepositNotification {
+  walletAddress: string;
+  amount: number;
+}
 
 interface WalletData {
   address: string;
@@ -34,15 +40,16 @@ export function useWallet() {
   const [otp, setOtp] = useState("");
   const [selectedToken, setSelectedToken] = useState<TokenType | null>(null);
 
-  const fetchWallet = async () => {
+  const [deposits, setDeposits] = useState<DepositNotification[]>([]);
+  const [socket, setSocket] = useState<Socket | null>(null);
+
+  const fetchDepositWallet = async () => {
     try {
       const { data } = await graphqlRequest(`
         query {
           getWalletInfo {
             address
             usdtBalance
-            dogeBalance
-            btcBalance
           }
         }
       `);
@@ -77,8 +84,6 @@ export function useWallet() {
           createWallet {
             address
             usdtBalance
-            dogeBalance
-            btcBalance
           }
         }
       `);
@@ -128,7 +133,7 @@ export function useWallet() {
       );
 
       alert("Withdrawal request submitted successfully.");
-      fetchWallet(); // Refresh wallet balances
+      fetchDepositWallet(); // Refresh wallet balances
       fetchPendingWithdrawals(); // Refresh pending withdrawals
     } catch (error: any) {
       setError(error.message || "Failed to process withdrawal request.");
@@ -138,9 +143,42 @@ export function useWallet() {
     }
   };
 
+  // useEffect(() => {
+  //   fetchWallet();
+  //   fetchPendingWithdrawals();
+  // }, []);
+
   useEffect(() => {
-    fetchWallet();
-    fetchPendingWithdrawals();
+    // WebSocket 연결 생성
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000"; // 기본값은 로컬호스트
+    console.log("apiUrl : ", apiUrl);
+    const newSocket = io(apiUrl);
+    setSocket(newSocket);
+
+    // usdtDeposit 이벤트 수신
+    newSocket.on(
+      "usdtDeposit",
+      (data: { walletAddress: string; amount: number }) => {
+        console.log("Deposit notification received:", data);
+
+        // 월렛 데이터 업데이트
+        setWalletData((prev) =>
+          prev
+            ? {
+                ...prev,
+                usdtBalance: (
+                  parseFloat(prev.usdtBalance) + data.amount
+                ).toFixed(6),
+              }
+            : prev
+        );
+      }
+    );
+
+    // 컴포넌트 언마운트 시 소켓 연결 종료
+    return () => {
+      newSocket.disconnect();
+    };
   }, []);
 
   return {
@@ -148,7 +186,7 @@ export function useWallet() {
     pendingWithdrawals,
     loading,
     error,
-    fetchWallet,
+    fetchDepositWallet,
     fetchPendingWithdrawals,
     createWallet,
     withdrawalAmounts,

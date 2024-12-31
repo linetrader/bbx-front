@@ -24,6 +24,7 @@ export default function Wallet() {
     handleConfirmWithdraw,
     otp,
     setOtp,
+    fetchDepositWallet,
     fetchPendingWithdrawals,
     pendingWithdrawals,
   } = useWallet();
@@ -32,7 +33,9 @@ export default function Wallet() {
   const [viewMode, setViewMode] = useState<ViewMode>(ViewMode.DEPOSIT);
 
   useEffect(() => {
-    if (viewMode === ViewMode.WITHDRAW) {
+    if (viewMode === ViewMode.DEPOSIT) {
+      fetchDepositWallet();
+    } else if (viewMode === ViewMode.WITHDRAW) {
       fetchPendingWithdrawals();
     }
   }, [viewMode]);

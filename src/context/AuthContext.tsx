@@ -35,7 +35,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }, []);
 
   useEffect(() => {
-    console.log("useEffect - token", token);
+    //console.log("useEffect - token", token);
     if (token && isTokenExpired(token)) {
       handleTokenExpiration();
     }
