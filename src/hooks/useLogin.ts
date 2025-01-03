@@ -35,6 +35,10 @@ export function useLogin() {
         true // skipAuthCheck 설정
       );
 
+      // if (data) {
+      //   console.log(data);
+      // }
+
       login(data.login);
     } catch (err: any) {
       setError(err.message || "An unexpected error occurred.");

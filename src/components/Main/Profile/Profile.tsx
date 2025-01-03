@@ -58,7 +58,7 @@ export default function Profile() {
     "w-full px-4 py-3 border border-cyan-500 rounded bg-gray-800 text-white focus:outline-none focus:ring-2 focus:ring-cyan-400 placeholder-gray-500";
 
   return (
-    <div className="flex flex-col min-h-screen bg-gradient-to-b from-black via-gray-900 to-black text-white">
+    <div className="flex flex-col h-[70vh]">
       <main className="flex-grow flex items-start justify-center pt-24">
         <div className={containerStyles}>
           <h1 className="text-4xl font-bold text-center text-cyan-400 mb-6 tracking-wide">

@@ -1,0 +1,15 @@
+{
+  "registerTitle": "Register",
+  "usernamePlaceholder": "Username",
+  "firstnamePlaceholder": "First Name",
+  "lastnamePlaceholder": "Last Name",
+  "emailPlaceholder": "Email",
+  "passwordPlaceholder": "Password",
+  "confirmPasswordPlaceholder": "Confirm Password",
+  "referrerPlaceholder": "Referrer (Optional)",
+  "registerButton": "Register",
+  "registeringButton": "Registering...",
+  "alreadyHaveAccount": "Already have an account?",
+  "loginHere": "Login here",
+  "errorMessage": "Error: {{error}}"
+}

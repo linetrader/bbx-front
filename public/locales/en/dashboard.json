@@ -1,0 +1,12 @@
+{
+  "welcome": "Welcome to BitBoostX",
+  "description": "This is the main content for USA.",
+  "logout": "Logout",
+  "dashboard": "Dashboard",
+  "loading": "Loading...",
+  "error": "Error",
+  "miningProfit": "Mining Profit",
+  "mined": "Mined",
+  "referralRewards": "Referral Rewards",
+  "referralBalance": "Referral Balance"
+}

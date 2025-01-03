@@ -1,0 +1,15 @@
+{
+  "registerTitle": "登録",
+  "usernamePlaceholder": "ユーザー名",
+  "firstnamePlaceholder": "名",
+  "lastnamePlaceholder": "姓",
+  "emailPlaceholder": "メールアドレス",
+  "passwordPlaceholder": "パスワード",
+  "confirmPasswordPlaceholder": "パスワードの確認",
+  "referrerPlaceholder": "紹介者 (任意)",
+  "registerButton": "登録",
+  "registeringButton": "登録中...",
+  "alreadyHaveAccount": "既にアカウントをお持ちですか？",
+  "loginHere": "こちらでログイン",
+  "errorMessage": "エラー: {{error}}"
+}

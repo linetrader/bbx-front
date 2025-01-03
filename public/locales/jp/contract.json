@@ -1,0 +1,14 @@
+{
+  "title": "購入確認",
+  "loading": "契約の詳細を読み込んでいます...",
+  "alerts": {
+    "enterName": "名前を入力してください。",
+    "enterPhone": "電話番号を入力してください。",
+    "enterAddress": "住所を入力してください。",
+    "agreeTerms": "購入前に契約条件に同意する必要があります。"
+  },
+  "buttons": {
+    "cancel": "キャンセル",
+    "confirm": "確認"
+  }
+}

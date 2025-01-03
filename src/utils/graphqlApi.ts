@@ -1,8 +1,14 @@
 // src/utils/graphqlApi.ts
 
+// src/utils/graphqlApi.ts
+
 import api from "@/utils/api";
 import { useApiState } from "@/hooks/useApiState";
 import { useAuth } from "@/context/AuthContext";
+
+interface GraphQLError {
+  message: string;
+}
 
 interface GraphQLResponse {
   data?: any;
@@ -16,20 +22,15 @@ export function useGraphQL() {
   const graphqlRequest = async (
     query: string,
     variables = {},
-    skipAuthCheck: boolean = false // 추가된 플래그로 인증 확인 건너뛰기 옵션 제공
+    skipAuthCheck: boolean = false
   ): Promise<GraphQLResponse> => {
     resetError();
     setLoading(true);
 
-    //console.log("graphqlRequest - ", query);
-
     // 토큰 유효성 확인
     if (!skipAuthCheck && (!token || !isTokenValid())) {
-      //console.log(skipAuthCheck);
-      //console.log(token);
-      //console.log(isTokenValid());
       setError("Authentication token is missing or invalid.");
-      logout(); // 유효하지 않으면 로그아웃 처리
+      logout(); // 유효하지 않은 경우 로그아웃 처리
       setLoading(false);
       return Promise.reject(new Error("Session expired. Logged out."));
     }
@@ -43,12 +44,7 @@ export function useGraphQL() {
         headers.Authorization = `Bearer ${token}`;
       }
 
-      // 디버깅 로그 추가
-      //console.log("GraphQL Request URL:", api.defaults.baseURL + "/graphql");
-      //console.log("Request Headers:", headers);
-      //console.log("GraphQL Query:", query);
-      //console.log("Variables:", variables);
-
+      // GraphQL 요청
       const response = await api.post(
         "/graphql",
         { query, variables },
@@ -57,25 +53,38 @@ export function useGraphQL() {
 
       const { data } = response;
 
-      // GraphQL 에러 체크
+      // data가 null인 경우를 처리
+      if (!data) {
+        const errorMessage = "No data received from GraphQL server.";
+        setError(errorMessage);
+        setLoading(false);
+        return Promise.reject(errorMessage); // 에러 메시지만 반환
+      }
+
+      // GraphQL 에러 처리
       if (data.errors) {
-        //console.error("GraphQL Errors:", data.errors);
         const serverMessage = data.errors
-          .map((error: { message: string }) => error.message)
+          .map((error: GraphQLError) => error.message)
           .join(", ");
 
-        setError(serverMessage);
+        // 여기서 예외가 BadRequestException 혹은 UnauthorizedException인 경우
+        setError(serverMessage); // 에러 메시지를 상태에 설정
         setLoading(false);
-
-        return Promise.reject(new Error(serverMessage));
+        return Promise.reject(serverMessage); // new Error 없이 메시지만 반환
       }
-      //console.log("graphqlRequest - response.data", response.data);
 
       return response.data;
-    } catch (err: any) {
-      console.error("GraphQL request failed:", err);
-      setError(err.message || "An unexpected error occurred.");
-      throw new Error(err.message);
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        //console.error("GraphQL request failed:", error.message);
+        setError(error.message);
+        return Promise.reject(new Error(error.message)); // 해당 오류를 반환
+      }
+
+      console.error("GraphQL request failed with unknown error:", error);
+      const errorMessage = "An unexpected error occurred.";
+      setError(errorMessage);
+      throw new Error(errorMessage);
     } finally {
       setLoading(false);
     }

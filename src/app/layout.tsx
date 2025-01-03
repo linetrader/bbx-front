@@ -1,6 +1,8 @@
 // src/app/layout.tsx
-import { AuthProvider } from "@/context/AuthContext";
+
+import { TranslationProvider } from "@/components/TranslationProvider";
 import "../styles/globals.css";
+import { AuthProvider } from "@/context/AuthContext";
 
 export const metadata = {
   title: "BitBoostX",
@@ -24,7 +26,9 @@ export default function RootLayout({
             maxWidth: "100%", // 최대 화면 너비를 초과하지 않도록 제한
           }}
         >
-          <AuthProvider>{children}</AuthProvider>
+          <AuthProvider>
+            <TranslationProvider>{children}</TranslationProvider>
+          </AuthProvider>
         </div>
       </body>
     </html>

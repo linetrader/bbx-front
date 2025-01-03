@@ -1,4 +1,5 @@
 // components/DepositSection.tsx
+
 "use client";
 
 import React from "react";
@@ -8,6 +9,7 @@ interface DepositSectionProps {
   error: string | null;
   loading: boolean;
   walletData: any;
+  miningData: any;
   createWallet: () => void;
 }
 
@@ -15,6 +17,7 @@ export default function DepositSection({
   error,
   loading,
   walletData,
+  miningData,
   createWallet,
 }: DepositSectionProps) {
   const handleCopy = async (text: string) => {
@@ -26,12 +29,24 @@ export default function DepositSection({
     }
   };
 
+  const getBalanceByType = (type: string) => {
+    const balanceData = miningData.find(
+      (data: any) => data.packageType === type
+    );
+    return balanceData ? balanceData.miningBalance : "0";
+  };
+
   return (
     <div>
       <h1 className="text-4xl font-bold text-center text-cyan-400 mb-6 tracking-wide">
         Deposit Wallet
       </h1>
-      {error && (
+      {walletData === null && (
+        <div className="px-4 py-3 rounded mb-4 text-sm bg-yellow-100 text-yellow-700 border-yellow-600">
+          Wallet not found. Please create a wallet.
+        </div>
+      )}
+      {error && walletData !== null && (
         <div
           className={`px-4 py-3 rounded mb-4 text-sm border ${
             error === "Wallet not found."
@@ -39,9 +54,7 @@ export default function DepositSection({
               : "bg-red-100 text-red-700 border-red-400"
           }`}
         >
-          {error === "Wallet not found."
-            ? "Wallet not found. Please create a wallet."
-            : error}
+          {error}
         </div>
       )}
       {loading ? (
@@ -71,11 +84,11 @@ export default function DepositSection({
             </div>
             <div className="mb-4">
               <p className="text-cyan-400 font-bold">DOGE Balance:</p>
-              <p className="text-gray-300">{walletData.dogeBalance}</p>
+              <p className="text-gray-300">{getBalanceByType("DOGE")}</p>
             </div>
             <div className="mb-4">
               <p className="text-cyan-400 font-bold">BTC Balance:</p>
-              <p className="text-gray-300">{walletData.btcBalance}</p>
+              <p className="text-gray-300">{getBalanceByType("BTC")}</p>
             </div>
           </div>
         </div>

@@ -3,7 +3,7 @@
 
 import React, { useState, useEffect } from "react";
 import { useWallet } from "@/hooks/useWallet";
-import OtpModal from "../OtpModal";
+import OtpModal from "../../OtpModal";
 import DepositSection from "./DepositSection";
 import WithdrawSection from "./WithdrawSection";
 
@@ -15,6 +15,7 @@ enum ViewMode {
 export default function Wallet() {
   const {
     walletData,
+    miningData,
     loading,
     error,
     createWallet,
@@ -25,6 +26,7 @@ export default function Wallet() {
     otp,
     setOtp,
     fetchDepositWallet,
+    fetchMiningData,
     fetchPendingWithdrawals,
     pendingWithdrawals,
   } = useWallet();
@@ -35,13 +37,14 @@ export default function Wallet() {
   useEffect(() => {
     if (viewMode === ViewMode.DEPOSIT) {
       fetchDepositWallet();
+      fetchMiningData();
     } else if (viewMode === ViewMode.WITHDRAW) {
       fetchPendingWithdrawals();
     }
   }, [viewMode]);
 
   return (
-    <div className="flex flex-col min-h-screen bg-gradient-to-b from-black via-gray-900 to-black text-white">
+    <div className="flex flex-col h-[70vh]">
       <main className="flex-grow pt-10">
         <div className="w-[90%] max-w-xl mx-auto bg-gray-900/80 p-8 rounded-lg shadow-2xl border border-cyan-500">
           <div className="flex justify-center gap-4 mb-8">
@@ -72,6 +75,7 @@ export default function Wallet() {
               error={error}
               loading={loading}
               walletData={walletData}
+              miningData={miningData}
               createWallet={createWallet}
             />
           ) : (

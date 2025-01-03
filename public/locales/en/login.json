@@ -1,0 +1,12 @@
+{
+  "loginTitle": "Login",
+  "emailPlaceholder": "Email",
+  "passwordPlaceholder": "Password",
+  "loggingIn": "Logging in...",
+  "loginButton": "Login",
+  "noAccount": "Don't have an account?",
+  "registerLink": "Register here",
+  "error": "Error: {{error}}",
+  "featuredBy": "Featured by:",
+  "binanceAlt": "Binance logo"
+}

@@ -1,0 +1,14 @@
+{
+  "title": "구매 확인",
+  "loading": "계약 세부 정보를 불러오는 중...",
+  "alerts": {
+    "enterName": "이름을 입력하세요.",
+    "enterPhone": "전화번호를 입력하세요.",
+    "enterAddress": "주소를 입력하세요.",
+    "agreeTerms": "구매 전에 약관에 동의해야 합니다."
+  },
+  "buttons": {
+    "cancel": "취소",
+    "confirm": "확인"
+  }
+}

@@ -5,6 +5,7 @@
 import React, { useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { useTranslation } from "next-i18next"; // useTranslation 훅 임포트
 import { useLogin } from "@/hooks/useLogin";
 import Logo from "../../assets/images/logos/LOGO.png";
 import Bn from "@/assets/images/bnsquare.png";
@@ -20,6 +21,7 @@ export default function Login() {
     error,
   } = useLogin();
 
+  const { t } = useTranslation("login"); // "login" 네임스페이스로 번역 키 사용
   const emailInputRef = useRef<HTMLInputElement>(null);
   const passwordInputRef = useRef<HTMLInputElement>(null);
 
@@ -46,7 +48,7 @@ export default function Login() {
         {/* 로그인 폼 */}
         <div className="w-[80%] bg-gray-900/80 p-8 rounded-lg shadow-2xl w-full max-w-md border border-cyan-500 -mt-20">
           <h1 className="text-4xl font-bold text-center text-cyan-400 mb-6 tracking-wide">
-            Login
+            {t("loginTitle")} {/* 번역 키 사용 */}
           </h1>
           {error && (
             <div
@@ -54,13 +56,13 @@ export default function Login() {
               role="alert"
               aria-live="polite"
             >
-              {error}
+              {t("error", { error })} {/* 번역 키에 에러 메시지 전달 */}
             </div>
           )}
           <input
             ref={emailInputRef}
             type="email"
-            placeholder="Email"
+            placeholder={t("emailPlaceholder")} // 번역 키 사용
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             className={inputStyles}
@@ -68,7 +70,7 @@ export default function Login() {
           <input
             ref={passwordInputRef}
             type="password"
-            placeholder="Password"
+            placeholder={t("passwordPlaceholder")} // 번역 키 사용
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             className={inputStyles}
@@ -83,12 +85,12 @@ export default function Login() {
                 : "bg-cyan-500 hover:bg-cyan-400 text-black"
             }`}
           >
-            {loading ? "Logging in..." : "Login"}
+            {loading ? t("loggingIn") : t("loginButton")} {/* 번역 키 사용 */}
           </button>
           <p className="text-center text-gray-400 mt-4">
-            Don't have an account?{" "}
+            {t("noAccount")}{" "}
             <Link href="/register" className="text-cyan-500 hover:underline">
-              Register here
+              {t("registerLink")}
             </Link>
           </p>
         </div>
@@ -98,12 +100,11 @@ export default function Login() {
       <footer className="flex flex-col items-center justify-center mt-10">
         <div className="relative w-64 h-64 mb-4">
           <h1 className="text-3xl font-bold text-center text-cyan-500 mb-4">
-            FEATURED BY
+            {t("featuredBy")} {/* 번역 키 사용 */}
           </h1>
-
           <Image
             src={Bn}
-            alt="binance"
+            alt={t("binanceAlt")}
             width={240}
             height={240}
             sizes="(max-width: 768px) 100vw, 50vw"

@@ -3,6 +3,7 @@
 import React from "react";
 import { useRegister } from "@/hooks/useRegister";
 import { useRouter } from "next/navigation";
+import { useTranslation } from "react-i18next"; // 번역 훅 가져오기
 
 export default function Register() {
   const {
@@ -14,6 +15,7 @@ export default function Register() {
     requiredFields,
   } = useRegister();
 
+  const { t } = useTranslation("register"); // 번역 함수 가져오기
   const router = useRouter();
 
   const handleChange = (field: string, value: string) => {
@@ -25,17 +27,17 @@ export default function Register() {
       {/* 메인 컨텐츠 */}
       <main className="w-[85%] bg-gray-900/80 p-8 rounded-lg shadow-2xl w-full max-w-lg border border-cyan-500 -mt-20">
         <h1 className="text-4xl font-bold text-center text-cyan-400 mb-6 tracking-wide">
-          Register
+          {t("registerTitle")}
         </h1>
         {error && (
           <div className="bg-red-600/70 text-white border border-red-500 px-4 py-3 rounded mb-4 text-center">
-            {error}
+            {t("errorMessage", { error })}
           </div>
         )}
         <form>
           <input
             type="text"
-            placeholder="Username"
+            placeholder={t("usernamePlaceholder")}
             value={formData.username}
             onChange={(e) => handleChange("username", e.target.value)}
             className={`w-full px-4 py-3 mb-4 border ${
@@ -46,7 +48,7 @@ export default function Register() {
           />
           <input
             type="text"
-            placeholder="First Name"
+            placeholder={t("firstnamePlaceholder")}
             value={formData.firstname}
             onChange={(e) => handleChange("firstname", e.target.value)}
             className={`w-full px-4 py-3 mb-4 border ${
@@ -57,7 +59,7 @@ export default function Register() {
           />
           <input
             type="text"
-            placeholder="Last Name"
+            placeholder={t("lastnamePlaceholder")}
             value={formData.lastname}
             onChange={(e) => handleChange("lastname", e.target.value)}
             className={`w-full px-4 py-3 mb-4 border ${
@@ -68,7 +70,7 @@ export default function Register() {
           />
           <input
             type="email"
-            placeholder="Email"
+            placeholder={t("emailPlaceholder")}
             value={formData.email}
             onChange={(e) => handleChange("email", e.target.value)}
             className={`w-full px-4 py-3 mb-4 border ${
@@ -79,7 +81,7 @@ export default function Register() {
           />
           <input
             type="password"
-            placeholder="Password"
+            placeholder={t("passwordPlaceholder")}
             value={formData.password}
             onChange={(e) => handleChange("password", e.target.value)}
             className={`w-full px-4 py-3 mb-4 border ${
@@ -90,14 +92,14 @@ export default function Register() {
           />
           <input
             type="password"
-            placeholder="Confirm Password"
+            placeholder={t("confirmPasswordPlaceholder")}
             value={formData.confirmPassword}
             onChange={(e) => handleChange("confirmPassword", e.target.value)}
             className="w-full px-4 py-3 mb-4 border border-cyan-500 rounded bg-gray-800 text-white focus:outline-none focus:ring-2 focus:ring-cyan-400 placeholder-gray-500"
           />
           <input
             type="text"
-            placeholder="Referrer (Optional)"
+            placeholder={t("referrerPlaceholder")}
             value={formData.referrer}
             onChange={(e) => handleChange("referrer", e.target.value)}
             className="w-full px-4 py-3 mb-6 border border-cyan-500 rounded bg-gray-800 text-white focus:outline-none focus:ring-2 focus:ring-cyan-400 placeholder-gray-500"
@@ -111,17 +113,17 @@ export default function Register() {
                 : "bg-cyan-500 hover:bg-cyan-400 text-black"
             }`}
           >
-            {loading ? "Registering..." : "Register"}
+            {loading ? t("registeringButton") : t("registerButton")}
           </button>
         </form>
         <div className="text-center mt-6">
           <p className="text-gray-400">
-            Already have an account?{" "}
+            {t("alreadyHaveAccount")}{" "}
             <span
               onClick={() => router.push("/login")}
               className="text-cyan-500 cursor-pointer hover:underline"
             >
-              Login here
+              {t("loginHere")}
             </span>
           </p>
         </div>

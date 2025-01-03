@@ -2,11 +2,11 @@
 
 "use client";
 
-import Package from "@/components/Package";
-import Wallet from "@/components/wallet/Wallet";
-import Transaction from "@/components/Transaction";
-import Profile from "@/components/Profile";
-import Dashboard from "@/components/Dashboard";
+import Package from "@/components/Main/Package/Package";
+import Wallet from "@/components/Main/wallet/Wallet";
+import Transaction from "@/components/Main/Transaction/Transaction";
+import Profile from "@/components/Main/Profile/Profile";
+import Dashboard from "@/components/Main/Dashboard/Dashboard";
 
 const contentStyle =
   "h-full overflow-y-auto scrollbar-hide max-h-[calc(100vh-160px)] -mt-8";

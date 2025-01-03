@@ -36,7 +36,7 @@ export default function Transaction() {
   ];
 
   return (
-    <div className="flex flex-col min-h-screen bg-gradient-to-b from-black via-gray-900 to-black text-white">
+    <div className="flex flex-col h-[70vh]">
       <main className="flex-grow pt-10">
         <div className="w-[90%] max-w-xl mx-auto bg-gray-900/80 p-8 rounded-lg shadow-2xl border border-cyan-500">
           <h1 className="text-4xl font-bold text-center text-cyan-400 mb-8 tracking-wide">

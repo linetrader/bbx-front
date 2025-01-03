@@ -22,6 +22,7 @@ export function useTransaction() {
   const [purchases, setPurchases] = useState<PurchaseRecord[] | null>(null);
 
   const fetchTransactionData = async () => {
+    //console.log("fetchTransactionData");
     try {
       const { data } = await graphqlRequest(
         `query {
@@ -42,6 +43,7 @@ export function useTransaction() {
   };
 
   const fetchPurchaseRecords = async () => {
+    //console.log("fetchPurchaseRecords");
     try {
       const { data } = await graphqlRequest(
         `query {
@@ -53,6 +55,7 @@ export function useTransaction() {
           }
         }`
       );
+      //console.log(data.getPackageRecords);
       setPurchases(data.getPackageRecords);
     } catch (err: any) {
       setError(err.message || "An unexpected error occurred.");
