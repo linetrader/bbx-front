@@ -1,7 +1,8 @@
 // src/components/PackageBuySection.tsx
 
-import React from "react";
-import { useTranslation } from "next-i18next";
+import React, { useEffect, useState } from "react";
+import { useTranslationContext } from "@/context/TranslationContext";
+import { translateText } from "@/utils/translate";
 
 interface PackageBuySectionProps {
   packages: any[];
@@ -22,7 +23,34 @@ export default function PackageBuySection({
   loading,
   error,
 }: PackageBuySectionProps) {
-  const { t } = useTranslation("packageBuySection"); // next-i18next 사용
+  const { language } = useTranslationContext();
+
+  const [translatedTexts, setTranslatedTexts] = useState({
+    packageBuy: "Package Buy",
+    myUsdtBalance: "My USDT Balance",
+    loading: "Loading...",
+    buy: "구매",
+  });
+
+  useEffect(() => {
+    const fetchTranslations = async () => {
+      const translations = await Promise.all([
+        translateText("Package Buy", language),
+        translateText("My USDT Balance", language),
+        translateText("Loading...", language),
+        translateText("구매", language),
+      ]);
+
+      setTranslatedTexts({
+        packageBuy: translations[0],
+        myUsdtBalance: translations[1],
+        loading: translations[2],
+        buy: translations[3],
+      });
+    };
+
+    fetchTranslations();
+  }, [language]);
 
   const inputStyles =
     "w-1/3 px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-cyan-400 bg-gray-800 text-white placeholder-gray-500";
@@ -32,14 +60,16 @@ export default function PackageBuySection({
   return (
     <div>
       <h2 className="text-4xl font-bold text-center text-cyan-400 mb-6 tracking-wide">
-        {t("title")}
+        {translatedTexts.packageBuy}
       </h2>
-      <h3 className="text-xl font-semibold text-gray-100 mb-6 text-center">
-        {t("balance")}:{" "}
-        <span className="text-cyan-400">{usdtBalance} USDT</span>
+      <h3 className="text-xl text-cyan-400 font-semibold mb-6 text-left">
+        {translatedTexts.myUsdtBalance}:{" "}
+        <span className="text-gray-100">{usdtBalance} USDT</span>
       </h3>
       {loading ? (
-        <div className="text-center text-gray-400">{t("loading")}</div>
+        <div className="text-center text-gray-400">
+          {translatedTexts.loading}
+        </div>
       ) : error && error !== "Wallet not found." ? (
         <div className="bg-red-600/70 text-white border border-red-500 px-4 py-3 rounded mb-6 text-center">
           {error}
@@ -51,7 +81,7 @@ export default function PackageBuySection({
             className="mb-6 p-4 border rounded border-cyan-500 bg-gray-800"
           >
             <h3 className="text-xl font-bold text-cyan-400 mb-4">
-              {pkg.name} {t("mining")} ({pkg.price} USDT)
+              {pkg.name} mining ({pkg.price} USDT)
             </h3>
             <div className="flex items-center gap-4">
               <input
@@ -70,7 +100,7 @@ export default function PackageBuySection({
                 className={buttonStyles}
                 onClick={() => handleContractOpen(pkg)}
               >
-                {t("buy")}
+                {translatedTexts.buy}
               </button>
             </div>
           </div>

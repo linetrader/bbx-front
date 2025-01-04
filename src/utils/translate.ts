@@ -23,6 +23,8 @@ export async function translateText(
     throw new Error("Google API Url is missing");
   }
 
+  //console.log("targetLang : ", targetLang, "=== text : ", text);
+
   try {
     const response = await axios.get(apiUrl, {
       params: {

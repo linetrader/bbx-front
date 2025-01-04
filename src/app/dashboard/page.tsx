@@ -3,7 +3,6 @@
 "use client";
 
 import { useState } from "react";
-import Header from "@/components/Header/Header";
 import MainContent from "@/components/Main/MainContent";
 import FooterNavigation from "@/components/Footer/FooterNavigation";
 
@@ -13,15 +12,6 @@ export default function Dashboard() {
 
   return (
     <div className="relative flex flex-col min-h-screen bg-gradient-to-b from-gray-800 to-gray-900 text-white">
-      {/* Header Section */}
-      <div className="w-full max-w-4xl bg-gray-900 shadow-md z-10 mx-auto">
-        <Header
-          menuOpen={menuOpen}
-          setMenuOpen={setMenuOpen}
-          setActiveScreen={setActiveScreen}
-        />
-      </div>
-
       {/* Main Content Section */}
       <div className="flex-grow w-full max-w-4xl p-4 mx-auto bg-gradient-to-b from-black via-gray-900 to-black text-white">
         {/* `pb-[80px]` ensures no overlap with FooterNavigation */}

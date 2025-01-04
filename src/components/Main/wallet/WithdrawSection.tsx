@@ -1,7 +1,10 @@
 // components/WithdrawSection.tsx
+
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
+import { useTranslationContext } from "@/context/TranslationContext";
+import { translateText } from "@/utils/translate";
 
 type TokenType = "usdt" | "doge" | "btc";
 
@@ -24,10 +27,54 @@ export default function WithdrawSection({
   loading,
   pendingWithdrawals,
 }: WithdrawSectionProps) {
+  const { language } = useTranslationContext();
+
+  const [translatedTexts, setTranslatedTexts] = useState({
+    withdrawWallet: "Withdraw Wallet",
+    amountLabel: "Quantity",
+    processing: "Processing...",
+    withdraw: "출금",
+    pendingWithdraws: "Withdraw Pending",
+    noPendingWithdraws: "No pending withdrawals.",
+    currency: "Currency",
+    amount: "Amount",
+    status: "Status",
+  });
+
+  useEffect(() => {
+    const fetchTranslations = async () => {
+      const translations = await Promise.all([
+        translateText("Withdraw Wallet", language),
+        translateText("Quantity", language),
+        translateText("Processing...", language),
+        translateText("출금", language),
+        translateText("Withdraw Pending", language),
+        translateText("No pending withdrawals.", language),
+        translateText("Currency", language),
+        translateText("Amount", language),
+        translateText("Status", language),
+      ]);
+
+      setTranslatedTexts({
+        withdrawWallet: translations[0],
+        amountLabel: translations[1],
+        processing: translations[2],
+        withdraw: translations[3],
+        pendingWithdraws: translations[4],
+        noPendingWithdraws: translations[5],
+        currency: translations[6],
+        amount: translations[7],
+        status: translations[8],
+      });
+    };
+
+    fetchTranslations();
+  }, [language]);
+
   return (
     <div>
       <h1 className="text-4xl font-bold text-center text-cyan-400 mb-6 tracking-wide">
-        Withdraw Wallet
+        {translatedTexts.withdrawWallet}
       </h1>
       <div className="mb-4 p-4 border rounded border-cyan-500 bg-gray-800">
         {(["usdt", "doge", "btc"] as TokenType[]).map((token) => (
@@ -36,7 +83,7 @@ export default function WithdrawSection({
               htmlFor={`${token}-withdraw`}
               className="block text-sm font-semibold text-gray-300 mb-2"
             >
-              {token.toUpperCase()} Amount
+              {token.toUpperCase()} {translatedTexts.amountLabel}
             </label>
             <div className="flex items-center gap-6">
               <input
@@ -45,7 +92,9 @@ export default function WithdrawSection({
                 step="0.000001"
                 value={withdrawalAmounts[token]}
                 onChange={(e) => handleInputChange(token, e.target.value)}
-                placeholder={`Enter ${token.toUpperCase()} amount`}
+                placeholder={`Enter ${token.toUpperCase()} ${
+                  translatedTexts.amountLabel
+                }`}
                 className="w-1/2 px-4 py-2 border rounded-l focus:outline-none focus:ring-2 focus:ring-cyan-400 bg-gray-800 text-white placeholder-gray-400"
               />
               <button
@@ -57,7 +106,9 @@ export default function WithdrawSection({
                     : "bg-red-500 hover:bg-red-400"
                 }`}
               >
-                {loading ? "Processing..." : "Withdraw"}
+                {loading
+                  ? translatedTexts.processing
+                  : translatedTexts.withdraw}
               </button>
             </div>
           </div>
@@ -65,7 +116,7 @@ export default function WithdrawSection({
       </div>
 
       <h1 className="text-4xl font-bold text-center text-cyan-400 mb-6 tracking-wide">
-        Withdraw Pending
+        {translatedTexts.pendingWithdraws}
       </h1>
       <div className="mb-4 p-4 border rounded border-cyan-500 bg-gray-800">
         {pendingWithdrawals.length > 0 ? (
@@ -73,19 +124,22 @@ export default function WithdrawSection({
             {pendingWithdrawals.map((withdrawal, index) => (
               <li key={index} className="p-4 bg-gray-700 rounded">
                 <p className="text-sm text-gray-300">
-                  <strong>Currency:</strong> {withdrawal.currency}
+                  <strong>{translatedTexts.currency}:</strong>{" "}
+                  {withdrawal.currency}
                 </p>
                 <p className="text-sm text-gray-300">
-                  <strong>Amount:</strong> {withdrawal.amount}
+                  <strong>{translatedTexts.amount}:</strong> {withdrawal.amount}
                 </p>
                 <p className="text-sm text-gray-300">
-                  <strong>Status:</strong> {withdrawal.status}
+                  <strong>{translatedTexts.status}:</strong> {withdrawal.status}
                 </p>
               </li>
             ))}
           </ul>
         ) : (
-          <p className="text-center text-gray-400">No pending withdrawals.</p>
+          <p className="text-center text-gray-400">
+            {translatedTexts.noPendingWithdraws}
+          </p>
         )}
       </div>
     </div>

@@ -1,146 +1,127 @@
-// components/Header.tsx
+// components/Header/Header.tsx
 
 "use client";
 
-import { useEffect } from "react";
-import { useAuth } from "../../context/AuthContext";
 import Image from "next/image";
-import Logo from "../../assets/images/logos/LOGO.png"; // 로고 이미지 파일 경로
 import Select from "react-select";
-import Flag from "react-world-flags"; // react-world-flags 임포트
-import i18n from "@/utils/i18n"; // i18n 가져오기
-import { useTranslation } from "react-i18next"; // 수정: react-i18next로 변경
-import { useRouter } from "next/navigation"; // 페이지 라우팅을 위한 useRouter 훅
+import Flag from "react-world-flags";
+import Logo from "../../assets/images/logos/logo.png";
+import { useHeader } from "@/hooks/useHeader";
 
-interface HeaderProps {
-  menuOpen: boolean;
-  setMenuOpen: (value: boolean) => void;
-  setActiveScreen: (screen: string) => void;
-}
-
-// 국가 옵션
-const options = [
-  { label: "USA", flag: "US", value: "en" },
-  { label: "KOR", flag: "KR", value: "kr" },
-  { label: "JPA", flag: "JP", value: "jp" },
-  { label: "CHN", flag: "CN", value: "cn" },
-];
-
-const customStyles = {
-  control: (provided: any) => ({
-    ...provided,
-    backgroundColor: "#4B5563", // 배경색을 회색으로 설정
-    borderRadius: "0.375rem", // 기본적인 border-radius
-    borderColor: "#4B5563", // 경계선 색상
-    width: "80px", // 컨트롤 너비 줄이기
-    height: "36px", // 컨트롤 높이 줄이기
-  }),
-  option: (provided: any) => ({
-    ...provided,
-    backgroundColor: "#6B7280", // 옵션 항목 배경색 설정
-    color: "black", // 옵션 텍스트 색상 설정
-    height: "30px", // 옵션 높이 줄이기
-    ":hover": {
-      backgroundColor: "#4B5563", // hover 시 배경색 변경
-    },
-  }),
-  singleValue: (provided: any) => ({
-    ...provided,
-    color: "#4B5563", // 선택된 값의 색상 설정
-  }),
-  indicatorSeparator: () => ({
-    display: "none", // 화살표 왼쪽 구분선 숨기기
-  }),
-  dropdownIndicator: (provided: any) => ({
-    ...provided,
-    display: "none", // 드롭다운 화살표 아이콘 숨기기
-  }),
-};
-
-export default function Header({
-  menuOpen,
-  setMenuOpen,
-  setActiveScreen,
-}: HeaderProps) {
-  const { logout } = useAuth();
-  const { t } = useTranslation(); // useTranslation 훅 사용
-  const router = useRouter();
-
-  // 디폴트 언어 설정
-  useEffect(() => {
-    const defaultLang = "kr";
-    i18n.changeLanguage(defaultLang); // 디폴트 언어 설정
-  }, []);
-
-  // 로고 클릭 시 Dashboard 페이지로 이동
-  const handleLogoClick = () => {
-    setActiveScreen("Home");
-  };
-
-  // 언어 변경 처리
-  const handleLanguageChange = (selectedOption: any) => {
-    const { value } = selectedOption;
-    console.log("i18n instance:", i18n);
-    i18n.changeLanguage(value); // 언어 변경
-    //router.push("/" + value); // URL을 리디렉션하여 페이지를 새로 고침
-  };
+export default function Header() {
+  const {
+    isMenuOpen,
+    setIsMenuOpen,
+    handleLanguageChange,
+    handleMenuClick,
+    options,
+    isLoggedIn,
+  } = useHeader();
 
   return (
-    <div className="flex justify-between p-5">
-      <div
-        className="relative w-20 h-8 cursor-pointer"
-        onClick={handleLogoClick}
-      >
-        {/* 로고 이미지 */}
-        <div className="absolute -top-16 -left-6 w-40 h-16">
-          <Image
-            src={Logo}
-            alt="BitBoostX Logo"
-            layout="responsive"
-            width={160}
-            height={64}
+    <div className="flex justify-between items-center p-2 bg-gray-900 shadow-md text-white relative">
+      {/* Logo */}
+      <div className="cursor-pointer">
+        <Image src={Logo} alt="BitBoostX Logo" width={100} height={100} />
+      </div>
+
+      {/* Right Section: Language Selector and Menu */}
+      <div className="flex items-center">
+        {/* Language Selector */}
+        <div
+          className="absolute"
+          style={{ top: "13px", right: "80px", height: "30px" }}
+        >
+          <Select
+            instanceId="language-select"
+            options={options}
+            defaultValue={options.find((option) => option.value === "ko")}
+            styles={{
+              control: (provided) => ({
+                ...provided,
+                backgroundColor: "#4B5563",
+                borderRadius: "0.375rem",
+                borderColor: "#4B5563",
+                minHeight: "35px",
+                height: "35px",
+                padding: "0px",
+              }),
+              option: (provided) => ({
+                ...provided,
+                backgroundColor: "#6B7280",
+              }),
+              singleValue: (provided) => ({
+                ...provided,
+                color: "white",
+              }),
+            }}
+            components={{
+              DropdownIndicator: () => null,
+              IndicatorSeparator: () => null,
+            }}
+            formatOptionLabel={(data) => (
+              <div className="flex items-center">
+                <Flag code={data.flag} className="inline-block w-6 h-4 mr-2" />
+                {data.label}
+              </div>
+            )}
+            onChange={handleLanguageChange}
           />
         </div>
-      </div>
 
-      <div className="absolute top-6 right-20">
-        {/* 국가 선택 메뉴 */}
-        <Select
-          options={options}
-          defaultValue={options.find((option) => option.value === "kr")} // 디폴트 선택 설정
-          styles={customStyles} // 커스텀 스타일 적용
-          formatOptionLabel={(data: any) => (
-            <div className="flex items-center">
-              <Flag code={data.flag} className="inline-block w-6 h-4 mr-2" />
-              {data.label}
+        {/* Menu */}
+        <div className="relative">
+          <button
+            className="p-1 rounded focus:outline-none bg-gray-700 hover:bg-gray-600"
+            style={{ width: "60px", height: "35px", padding: "0" }}
+            onClick={() => setIsMenuOpen((prev) => !prev)} // 메뉴 열림/닫힘 토글
+          >
+            {/* SVG 아이콘 */}
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="8 0 24 24"
+              strokeWidth={2}
+              stroke="currentColor"
+              className="w-full h-full text-white"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M4 6h32M4 12h32M4 18h32"
+              />
+            </svg>
+          </button>
+          {/* Dropdown menu */}
+          {isMenuOpen && (
+            <div className="absolute right-0 mt-2 bg-white border border-gray-300 rounded shadow-lg w-48 text-black z-30">
+              <button
+                className="block w-full text-left px-4 py-2 hover:bg-gray-100"
+                onClick={() => handleMenuClick("notice")}
+              >
+                Notice
+              </button>
+              <button
+                className="block w-full text-left px-4 py-2 hover:bg-gray-100"
+                onClick={() => handleMenuClick("tree")}
+              >
+                Tree
+              </button>
+              <button
+                className="block w-full text-left px-4 py-2 hover:bg-gray-100"
+                onClick={() => handleMenuClick("wallet")}
+              >
+                Wallet
+              </button>
+              <button
+                className="block w-full text-left px-4 py-2 hover:bg-gray-100"
+                onClick={() => handleMenuClick("auth")}
+              >
+                {isLoggedIn ? "Logout" : "Login"}
+              </button>
             </div>
           )}
-          onChange={handleLanguageChange} // 언어 변경 처리
-        />
-      </div>
-
-      <div>
-        {/* 햄버거 메뉴 버튼 */}
-        <button
-          onClick={() => setMenuOpen(!menuOpen)}
-          className="absolute top-6 right-6 p-2 bg-gray-700 rounded-md hover:bg-gray-600 focus:outline-none"
-        >
-          <div className="w-8 h-1 bg-gray-400 mb-1"></div>
-          <div className="w-8 h-1 bg-gray-400 mb-1"></div>
-          <div className="w-8 h-1 bg-gray-400"></div>
-        </button>
-
-        {/* 드롭다운 메뉴 */}
-        {menuOpen && (
-          <div className="absolute top-14 right-6 bg-gray-800 shadow-lg rounded-lg w-48 z-50">
-            <button
-              onClick={logout}
-              className="block w-full text-left px-4 py-2 text-white hover:bg-gray-700"
-            >
-              Logout
-            </button>
-          </div>
-        )}
+        </div>
       </div>
     </div>
   );

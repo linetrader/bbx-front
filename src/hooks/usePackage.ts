@@ -15,7 +15,7 @@ interface UserPackage {
 }
 
 interface DefaultContractTemplate {
-  content: string;
+  content: string[]; // content를 배열로 정의
   date: string;
   companyName: string;
   companyAddress: string;
@@ -29,42 +29,47 @@ export function usePackage() {
   const [quantities, setQuantities] = useState<{ [key: string]: number }>({});
   const [usdtBalance, setUsdtBalance] = useState(0.0);
   const [userPackages, setUserPackages] = useState<UserPackage[]>([]);
-
-  // 추가: 계약서 관련 상태
   const [showContract, setShowContract] = useState(false);
   const [selectedPackage, setSelectedPackage] = useState<Package | null>(null);
   const [defaultContract, setDefaultContract] =
     useState<DefaultContractTemplate | null>(null);
 
+  // Fetch default contract
   const fetchDefaultContract = async () => {
-    //console.log("fetchDefaultContract");
     try {
-      const { data } = await graphqlRequest(`query { getDefaultContract { 
-        content 
-        date 
-        companyName 
-        companyAddress 
-        businessNumber 
-        representative 
-      } }`);
+      const { data } = await graphqlRequest(`
+        query {
+          getDefaultContract {
+            content
+            date
+            companyName
+            companyAddress
+            businessNumber
+            representative
+          }
+        }
+      `);
+
       setDefaultContract(data.getDefaultContract);
     } catch (err: any) {
-      console.log("fetchDefaultContract - ", err.message);
+      console.error("Error fetching default contract:", err.message);
       setError(err.message || "An unexpected error occurred.");
     }
   };
 
   const fetchPackages = async () => {
-    //console.log("fetchPackages");
     try {
-      const { data } = await graphqlRequest(
-        `query { getPackages { id name price } }`
-      );
-
-      //console.log("fetchPackages", data.getPackages);
+      const { data } = await graphqlRequest(`
+        query {
+          getPackages {
+            id
+            name
+            price
+          }
+        }
+      `);
 
       setPackages(data.getPackages);
-
       const initialQuantities = data.getPackages.reduce(
         (acc: any, pkg: Package) => {
           acc[pkg.id] = 0;
@@ -72,46 +77,67 @@ export function usePackage() {
         },
         {}
       );
-
-      //console.log("fetchPackages", initialQuantities);
-
       setQuantities(initialQuantities);
     } catch (err: any) {
-      console.log("fetchPackages - ", err.message);
+      console.error("Error fetching packages:", err.message);
       setError(err.message || "An unexpected error occurred.");
     }
   };
 
   const fetchUsdtBalance = async () => {
-    //console.log("fetchUsdtBalance");
     try {
-      const { data } = await graphqlRequest(
-        `query { getWalletInfo { usdtBalance } }`
-      );
+      const { data } = await graphqlRequest(`
+        query {
+          getWalletInfo {
+            usdtBalance
+          }
+        }
+      `);
 
-      //console.log("fetchUsdtBalance == ", data);
-
-      setUsdtBalance(data.getWalletInfo.usdtBalance);
-      //console.log("fetchUsdtBalance", data.getWalletInfo.usdtBalance);
+      // Ensure that data exists and handle the response accordingly
+      if (data?.getWalletInfo) {
+        //console.log("Wallet Info Success");
+        setUsdtBalance(data.getWalletInfo.usdtBalance);
+      } else {
+        setUsdtBalance(0.0); // Wallet이 없으면 null 설정
+        console.log("Wallet not found, user needs to create one.");
+      }
     } catch (err: any) {
-      console.log("fetchUsdtBalance - ", err.message);
-      setError(err.message || "Wallet not found.");
+      //console.error("Error in fetchDepositWallet:", err);
+
+      // Ensure err.message exists and is a string before calling `includes`
+      if (err.message && typeof err.message === "string") {
+        // Handle "Wallet not found" case
+        if (err.message.includes("Wallet not found")) {
+          setUsdtBalance(0.0);
+          console.log("Wallet not found, user needs to create one.");
+        } else {
+          // Handle other error messages
+          setError(err.message || "An unexpected error occurred.");
+        }
+      } else {
+        // In case `err.message` is not defined, set a generic error message
+        setError("An unexpected error occurred. endpoint");
+      }
     }
   };
 
-  // 3. 유저의 패키지 수량 가져오기
   const fetchUserPackages = async () => {
-    //console.log("fetchUserPackages");
     try {
-      const { data } = await graphqlRequest(
-        `query { getUserMiningData { packageType quantity } }`
-      );
+      const { data } = await graphqlRequest(`
+        query {
+          getUserMiningData {
+            packageType
+            quantity
+          }
+        }
+      `);
 
       if (!data.error) {
         setUserPackages(data.getUserMiningData);
       }
     } catch (err: any) {
-      console.log("fetchUserPackages - ", err.message);
+      console.error("Error fetching user packages:", err.message);
       setError(err.message || "An unexpected error occurred.");
     }
   };
@@ -124,28 +150,29 @@ export function usePackage() {
   ) => {
     try {
       const quantity = quantities[packageId];
-
       if (quantity <= 0) {
         setError("Quantity must be greater than zero.");
         return;
       }
 
       const { data } = await graphqlRequest(
-        `mutation PurchasePackage(
-          $packageId: String!,
-          $quantity: Int!,
-          $customerName: String!,
-          $customerPhone: String!,
-          $customerAddress: String!
-        ) {
-          purchasePackage(
-            packageId: $packageId,
-            quantity: $quantity,
-            customerName: $customerName,
-            customerPhone: $customerPhone,
-            customerAddress: $customerAddress
-          )
-        }`,
+        `
+          mutation PurchasePackage(
+            $packageId: String!
+            $quantity: Int!
+            $customerName: String!
+            $customerPhone: String!
+            $customerAddress: String!
+          ) {
+            purchasePackage(
+              packageId: $packageId
+              quantity: $quantity
+              customerName: $customerName
+              customerPhone: $customerPhone
+              customerAddress: $customerAddress
+            )
+          }
+        `,
         { packageId, quantity, customerName, customerPhone, customerAddress }
       );
 
@@ -157,13 +184,11 @@ export function usePackage() {
     }
   };
 
-  // 추가: 계약서 열기
   const handleContractOpen = (pkg: Package) => {
     setSelectedPackage(pkg);
     setShowContract(true);
   };
 
-  // 추가: 계약서 닫기
   const handleContractClose = () => {
     setSelectedPackage(null);
     setShowContract(false);
@@ -173,7 +198,7 @@ export function usePackage() {
     fetchPackages();
     fetchUsdtBalance();
     fetchUserPackages();
-    fetchDefaultContract(); // 기본 계약 정보 가져오기
+    fetchDefaultContract();
   }, []);
 
   return {
