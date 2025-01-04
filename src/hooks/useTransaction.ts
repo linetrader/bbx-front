@@ -1,20 +1,6 @@
 import { useState, useEffect } from "react";
 import { useGraphQL } from "@/utils/graphqlApi";
-
-interface Transaction {
-  type: string;
-  amount: string;
-  token: string;
-  transactionHash: string;
-  createdAt: string;
-}
-
-interface PurchaseRecord {
-  packageName: string;
-  quantity: number;
-  totalPrice: number;
-  createdAt: string;
-}
+import { PurchaseRecord, Transaction } from "./types/common";
 
 export function useTransaction() {
   const { graphqlRequest, loading, error, setError } = useGraphQL();
