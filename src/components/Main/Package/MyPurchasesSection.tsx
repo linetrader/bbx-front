@@ -1,8 +1,10 @@
 // src/components/MyPurchasesSection.tsx
 
+"use client";
+
 import React, { useEffect, useState } from "react";
 import { useTranslationContext } from "@/context/TranslationContext";
-import { translateText } from "@/utils/translate";
+import { fetchTranslation } from "@/utils/TranslateModule/translateCache";
 
 interface MyPurchasesSectionProps {
   userPackages: any[];
@@ -16,24 +18,39 @@ export default function MyPurchasesSection({
   const { language } = useTranslationContext();
 
   const [translatedTexts, setTranslatedTexts] = useState({
-    title: "My Package",
-    walletError: "Wallet not found. Please create a wallet.",
-    noPurchases: "No purchases yet.",
+    title: "내 패키지",
+    walletError: "지갑을 찾을 수 없습니다. 지갑을 생성하세요.",
+    noPurchases: "구매 내역이 없습니다.",
   });
 
   useEffect(() => {
     const fetchTranslations = async () => {
-      const translations = await Promise.all([
-        translateText("My Package", language),
-        translateText("Wallet not found. Please create a wallet.", language),
-        translateText("No purchases yet.", language),
-      ]);
+      try {
+        const keys = [
+          { key: "title", text: "내 패키지" },
+          {
+            key: "walletError",
+            text: "지갑을 찾을 수 없습니다. 지갑을 생성하세요.",
+          },
+          { key: "noPurchases", text: "구매 내역이 없습니다." },
+        ];
 
-      setTranslatedTexts({
-        title: translations[0],
-        walletError: translations[1],
-        noPurchases: translations[2],
-      });
+        const translations = await Promise.all(
+          keys.map((item) => fetchTranslation(item.text, language))
+        );
+
+        const updatedTexts = keys.reduce(
+          (acc, item, index) => {
+            acc[item.key as keyof typeof translatedTexts] = translations[index];
+            return acc;
+          },
+          { ...translatedTexts }
+        );
+
+        setTranslatedTexts(updatedTexts);
+      } catch (error) {
+        console.error("[ERROR] Failed to fetch translations:", error);
+      }
     };
 
     fetchTranslations();

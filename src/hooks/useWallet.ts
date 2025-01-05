@@ -12,6 +12,7 @@ interface DepositNotification {
 
 interface WalletData {
   address: string;
+  whithdrawAddress: string;
   usdtBalance: string;
 }
 
@@ -33,18 +34,17 @@ export function useWallet() {
   const { graphqlRequest, loading, error, setError } = useGraphQL();
   const [walletData, setWalletData] = useState<WalletData | null>(null);
   const [miningData, setminingData] = useState<MiningData[] | null>([]);
-  const [withdrawalAmounts, setWithdrawalAmounts] = useState<
-    Record<TokenType, string>
-  >({
-    usdt: "",
-    doge: "",
-    btc: "",
-  });
+  // const [withdrawalAmounts, setWithdrawalAmounts] = useState<
+  //   Record<TokenType, number>
+  // >({
+  //   usdt: 0.0,
+  //   doge: 0.0,
+  //   btc: 0.0,
+  // });
   const [pendingWithdrawals, setPendingWithdrawals] = useState<
     WithdrawalRequest[]
   >([]);
-  const [otp, setOtp] = useState("");
-  const [selectedToken, setSelectedToken] = useState<TokenType | null>(null);
+  //const [selectedToken, setSelectedToken] = useState<TokenType | null>(null);
 
   const [deposits, setDeposits] = useState<DepositNotification[]>([]);
   const [socket, setSocket] = useState<Socket | null>(null);
@@ -56,6 +56,7 @@ export function useWallet() {
         query {
           getWalletInfo {
             address
+            whithdrawAddress
             usdtBalance
           }
         }
@@ -63,7 +64,10 @@ export function useWallet() {
 
       // Ensure that data exists and handle the response accordingly
       if (data?.getWalletInfo) {
-        //console.log("Wallet Info Success");
+        console.log(
+          "Wallet Info Success - data.getWalletInfo",
+          data.getWalletInfo
+        );
         setWalletData(data.getWalletInfo);
       } else {
         setWalletData(null); // Wallet이 없으면 null 설정
@@ -123,11 +127,10 @@ export function useWallet() {
             currency
             amount
             status
-            createdAt
           }
         }
       `);
-      console.log("Response received for getPendingWithdrawals:", data);
+      //console.log("Response received for getPendingWithdrawals:", data);
       if (data?.getPendingWithdrawals) {
         setPendingWithdrawals(data.getPendingWithdrawals);
       } else {
@@ -162,55 +165,92 @@ export function useWallet() {
     }
   };
 
-  const handleInputChange = (token: TokenType, value: string) => {
-    setWithdrawalAmounts((prev) => ({
-      ...prev,
-      [token]: value,
-    }));
-  };
+  // const handleInputChange = (token: TokenType, value: number) => {
+  //   setWithdrawalAmounts((prev) => ({
+  //     ...prev,
+  //     [token]: value,
+  //   }));
+  // };
 
-  const handleWithdrawClick = (token: TokenType) => {
-    const amount = withdrawalAmounts[token];
-    if (!amount || parseFloat(amount) <= 0) {
+  // const handleWithdrawClick = (token: TokenType) => {
+  //   const amount = withdrawalAmounts[token];
+  //   if (amount <= 0) {
+  //     setError("Please enter a valid amount to withdraw.");
+  //     return;
+  //   }
+  //   setSelectedToken(token);
+  // };
+
+  const handleConfirmWithdraw = async (
+    otpValue: string,
+    selectedToken: string,
+    amount: number
+  ): Promise<boolean> => {
+    if (amount <= 0) {
       setError("Please enter a valid amount to withdraw.");
-      return;
-    }
-    setSelectedToken(token);
-  };
-
-  const handleConfirmWithdraw = async (otpValue: string) => {
-    if (!selectedToken) return;
-
-    const amount = withdrawalAmounts[selectedToken];
-    if (!amount || parseFloat(amount) <= 0) {
-      setError("Please enter a valid amount to withdraw.");
-      return;
+      return false;
     }
 
     try {
-      console.log("Confirming withdrawal request...");
-      await graphqlRequest(
+      // console.log("Confirming withdrawal request...");
+      const { data } = await graphqlRequest(
         `
           mutation RequestWithdrawal($currency: String!, $amount: Float!, $otp: String!) {
             requestWithdrawal(currency: $currency, amount: $amount, otp: $otp)
           }
         `,
         {
-          currency: selectedToken.toUpperCase(),
-          amount: parseFloat(amount),
+          currency: selectedToken,
+          amount: parseFloat(amount.toString()),
           otp: otpValue,
         }
       );
 
-      alert("Withdrawal request submitted successfully.");
-      fetchDepositWallet(); // Refresh wallet balances
-      fetchPendingWithdrawals(); // Refresh pending withdrawals
+      //console.log("requestWithdrawal - ", data);
+
+      if (data) {
+        fetchDepositWallet(); // Refresh wallet balances
+        fetchMiningData();
+        fetchPendingWithdrawals(); // Refresh pending withdrawals
+        return true;
+      }
     } catch (error: any) {
-      console.error("Error in handleConfirmWithdraw:", error);
-      setError(error.message || "Failed to process withdrawal request.");
-    } finally {
-      setOtp("");
-      setSelectedToken(null);
+      if (error) {
+        alert(error);
+        return false;
+      }
+    }
+    return false;
+  };
+
+  const saveWithdrawAddress = async (
+    newAddress: string,
+    otp: string
+  ): Promise<boolean> => {
+    try {
+      const { data } = await graphqlRequest(
+        `
+          mutation SaveWithdrawAddress($newAddress: String!, $otp: String!) {
+            saveWithdrawAddress(newAddress: $newAddress, otp: $otp)
+          }
+        `,
+        {
+          newAddress,
+          otp,
+        }
+      );
+
+      if (data?.saveWithdrawAddress) {
+        fetchDepositWallet(); // Update wallet data after saving the address
+        return true;
+      }
+      setError("Failed to save withdraw address.");
+      return false;
+    } catch (err: any) {
+      alert(
+        err.message || "An error occurred while saving the withdraw address."
+      );
+      return false;
     }
   };
 
@@ -224,12 +264,7 @@ export function useWallet() {
     fetchMiningData,
     fetchPendingWithdrawals,
     createWallet,
-    withdrawalAmounts,
-    handleInputChange,
-    handleWithdrawClick,
     handleConfirmWithdraw,
-    otp,
-    setOtp,
-    selectedToken,
+    saveWithdrawAddress,
   };
 }

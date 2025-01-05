@@ -1,10 +1,9 @@
 // src/components/CustomerInfoForm.tsx
-
 "use client";
 
 import React, { useEffect, useState } from "react";
 import { useTranslationContext } from "@/context/TranslationContext";
-import { translateText } from "@/utils/translate";
+import { fetchTranslation } from "@/utils/TranslateModule/translateCache";
 
 interface CustomerInfoProps {
   customerInfo: {
@@ -23,27 +22,38 @@ const CustomerInfoForm: React.FC<CustomerInfoProps> = ({
   const { language } = useTranslationContext();
 
   const [translatedTexts, setTranslatedTexts] = useState({
-    nameLabel: "Name",
-    phoneLabel: "Phone",
-    addressLabel: "Address",
-    termsLabel: "I agree to the terms and conditions.",
+    nameLabel: "이름",
+    phoneLabel: "전화번호",
+    addressLabel: "주소",
+    termsLabel: "약관에 동의합니다.",
   });
 
   useEffect(() => {
     const fetchTranslations = async () => {
-      const translations = await Promise.all([
-        translateText("Name", language),
-        translateText("Phone", language),
-        translateText("Address", language),
-        translateText("I agree to the terms and conditions.", language),
-      ]);
+      try {
+        const keys = [
+          { key: "nameLabel", text: "이름" },
+          { key: "phoneLabel", text: "전화번호" },
+          { key: "addressLabel", text: "주소" },
+          { key: "termsLabel", text: "약관에 동의합니다." },
+        ];
 
-      setTranslatedTexts({
-        nameLabel: translations[0],
-        phoneLabel: translations[1],
-        addressLabel: translations[2],
-        termsLabel: translations[3],
-      });
+        const translations = await Promise.all(
+          keys.map((item) => fetchTranslation(item.text, language))
+        );
+
+        const updatedTexts = keys.reduce(
+          (acc, item, index) => {
+            acc[item.key as keyof typeof translatedTexts] = translations[index];
+            return acc;
+          },
+          { ...translatedTexts }
+        );
+
+        setTranslatedTexts(updatedTexts);
+      } catch (error) {
+        console.error("[ERROR] Failed to fetch translations:", error);
+      }
     };
 
     fetchTranslations();

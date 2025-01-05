@@ -1,7 +1,5 @@
 // src/utils/graphqlApi.ts
 
-// src/utils/graphqlApi.ts
-
 import api from "@/utils/api";
 import { useApiState } from "@/hooks/useApiState";
 import { useAuth } from "@/context/AuthContext";

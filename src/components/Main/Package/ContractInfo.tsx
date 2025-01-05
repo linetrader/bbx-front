@@ -4,7 +4,7 @@
 
 import React, { useEffect, useState } from "react";
 import { useTranslationContext } from "@/context/TranslationContext";
-import { translateText } from "@/utils/translate";
+import { fetchTranslation } from "@/utils/TranslateModule/translateCache";
 
 interface ContractInfoProps {
   contractContent: string[];
@@ -20,17 +20,15 @@ const ContractInfo: React.FC<ContractInfoProps> = ({
   const { language } = useTranslationContext();
 
   const [translatedTexts, setTranslatedTexts] = useState({
-    showMore: "Show more",
-    showLess: "Show less",
+    showMore: "더 보기",
+    showLess: "접기",
     translatedContent: "",
   });
 
   const tempContract =
     contractContent.length > 1
-      ? String(contractContent[0]) +
-        String(contractContent[1]) +
-        String(contractContent[2])
-      : String(contractContent[0] || "");
+      ? contractContent.slice(0, 3).join("")
+      : contractContent[0] || "";
 
   const maxLength = 150;
   const beforeLength = tempContract.length;
@@ -41,21 +39,33 @@ const ContractInfo: React.FC<ContractInfoProps> = ({
 
   useEffect(() => {
     const fetchTranslations = async () => {
-      const translations = await Promise.all([
-        translateText("Show more", language),
-        translateText("Show less", language),
-        translateText(displayedContent, language),
-      ]);
+      try {
+        const keys = [
+          { key: "showMore", text: "더 보기" },
+          { key: "showLess", text: "접기" },
+          { key: "translatedContent", text: displayedContent },
+        ];
 
-      setTranslatedTexts({
-        showMore: translations[0],
-        showLess: translations[1],
-        translatedContent: translations[2],
-      });
+        const translations = await Promise.all(
+          keys.map((item) => fetchTranslation(item.text, language))
+        );
+
+        const updatedTranslations = keys.reduce(
+          (acc, item, index) => {
+            acc[item.key as keyof typeof translatedTexts] = translations[index];
+            return acc;
+          },
+          { ...translatedTexts }
+        );
+
+        setTranslatedTexts(updatedTranslations);
+      } catch (error) {
+        console.error("[ERROR] Failed to fetch translations:", error);
+      }
     };
 
     fetchTranslations();
-  }, [language]);
+  }, [language, displayedContent]);
 
   return (
     <div className="p-6 bg-gray-800 rounded-lg border border-cyan-500 mb-6">

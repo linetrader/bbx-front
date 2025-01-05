@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { useTransaction } from "@/hooks/useTransaction";
 import { useTranslationContext } from "@/context/TranslationContext";
-import { translateText } from "@/utils/translate";
+import { fetchTranslation } from "@/utils/TranslateModule/translateCache";
 import FilterSection from "./FilterSection";
 import TransactionsSection from "./TransactionsSection";
 import PurchasesSection from "./PurchasesSection";
@@ -15,27 +15,37 @@ export default function Transaction() {
 
   const [translatedTexts, setTranslatedTexts] = useState({
     transactionsTitle: "트랜잭션",
-    loadingMessage: "Loading...",
-    errorMessage: "Error occurred",
-    noDataMessage: "No Data Available",
+    loadingMessage: "로딩 중...",
+    errorMessage: "오류가 발생했습니다",
+    noDataMessage: "데이터가 없습니다",
   });
 
-  // 번역된 텍스트 가져오기
   useEffect(() => {
     const fetchTranslations = async () => {
-      const translations = await Promise.all([
-        translateText("트랜잭션", language),
-        translateText("Loading...", language),
-        translateText("Error occurred", language),
-        translateText("No Data Available", language),
-      ]);
+      const keys = [
+        { key: "transactionsTitle", text: "트랜잭션" },
+        { key: "loadingMessage", text: "로딩 중..." },
+        { key: "errorMessage", text: "오류가 발생했습니다" },
+        { key: "noDataMessage", text: "데이터가 없습니다" },
+      ];
 
-      setTranslatedTexts({
-        transactionsTitle: translations[0],
-        loadingMessage: translations[1],
-        errorMessage: translations[2],
-        noDataMessage: translations[3],
-      });
+      try {
+        const translations = await Promise.all(
+          keys.map((item) => fetchTranslation(item.text, language))
+        );
+
+        const updatedTexts = keys.reduce(
+          (acc, item, index) => {
+            acc[item.key as keyof typeof translatedTexts] = translations[index];
+            return acc;
+          },
+          { ...translatedTexts }
+        );
+
+        setTranslatedTexts(updatedTexts);
+      } catch (error) {
+        console.error("[ERROR] Failed to fetch translations:", error);
+      }
     };
 
     fetchTranslations();

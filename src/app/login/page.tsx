@@ -7,7 +7,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useLogin } from "@/hooks/useLogin";
 import { useTranslationContext } from "@/context/TranslationContext";
-import { translateText } from "@/utils/translate";
+import { fetchTranslation } from "@/utils/TranslateModule/translateCache";
 import Logo from "../../assets/images/logos/logo.png";
 import Bn from "@/assets/images/bnsquare.png";
 
@@ -25,40 +25,46 @@ export default function Login() {
   const { language } = useTranslationContext();
 
   const [translatedTexts, setTranslatedTexts] = useState({
-    loginTitle: "Login",
-    emailPlaceholder: "Email",
-    passwordPlaceholder: "Password",
-    loginButton: "Login",
-    loggingIn: "Logging in...",
-    noAccount: "Don't have an account?",
-    registerHere: "Register here",
-    featuredBy: "FEATURED BY",
+    loginTitle: "로그인",
+    emailPlaceholder: "이메일",
+    passwordPlaceholder: "비밀번호",
+    loginButton: "로그인",
+    loggingIn: "로그인 중...",
+    noAccount: "계정이 없으신가요?",
+    registerHere: "회원가입하기",
+    featuredBy: "제공: ",
   });
 
   useEffect(() => {
     const fetchTranslations = async () => {
-      //console.log("Login 현재 언어 : ", language);
-      const translations = await Promise.all([
-        translateText("Login", language),
-        translateText("Email", language),
-        translateText("Password", language),
-        translateText("Login", language),
-        translateText("Logging in...", language),
-        translateText("Don't have an account?", language),
-        translateText("Register here", language),
-        translateText("FEATURED BY", "en"),
-      ]);
+      try {
+        const keys = [
+          { key: "loginTitle", text: "로그인" },
+          { key: "emailPlaceholder", text: "이메일" },
+          { key: "passwordPlaceholder", text: "비밀번호" },
+          { key: "loginButton", text: "로그인" },
+          { key: "loggingIn", text: "로그인 중..." },
+          { key: "noAccount", text: "계정이 없으신가요?" },
+          { key: "registerHere", text: "회원가입하기" },
+          { key: "featuredBy", text: "제공: " },
+        ];
 
-      setTranslatedTexts({
-        loginTitle: translations[0],
-        emailPlaceholder: translations[1],
-        passwordPlaceholder: translations[2],
-        loginButton: translations[3],
-        loggingIn: translations[4],
-        noAccount: translations[5],
-        registerHere: translations[6],
-        featuredBy: translations[7],
-      });
+        const translations = await Promise.all(
+          keys.map((item) => fetchTranslation(item.text, language))
+        );
+
+        const updatedTranslations = keys.reduce(
+          (acc, item, index) => {
+            acc[item.key as keyof typeof translatedTexts] = translations[index];
+            return acc;
+          },
+          { ...translatedTexts }
+        );
+
+        setTranslatedTexts(updatedTranslations);
+      } catch (error) {
+        console.error("[ERROR] Failed to fetch translations:", error);
+      }
     };
 
     fetchTranslations();
@@ -69,13 +75,13 @@ export default function Login() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-black via-gray-900 to-black text-white flex flex-col">
-      {/* 메인 컨텐츠 */}
+      {/* Main Content */}
       <main className="flex flex-col items-center mt-5">
-        {/* 로고 섹션 */}
+        {/* Logo Section */}
         <Image src={Logo} alt="BitBoostX Logo" width={240} height={240} />
 
-        {/* 로그인 폼 */}
-        <div className="w-[80%] bg-gray-900/80 p-8 rounded-lg shadow-2xl w-full max-w-md border border-cyan-500 mt-5">
+        {/* Login Form */}
+        <div className="w-[80%] bg-gray-900/80 p-8 rounded-lg shadow-2xl max-w-md border border-cyan-500 mt-5">
           <h1 className="text-4xl font-bold text-center text-cyan-400 mb-6">
             {translatedTexts.loginTitle}
           </h1>
@@ -118,7 +124,7 @@ export default function Login() {
         </div>
       </main>
 
-      {/* 하단 섹션 */}
+      {/* Footer Section */}
       <footer className="flex flex-col items-center justify-center mt-10">
         <div className="relative w-64 h-64 mb-4">
           <h1 className="text-3xl font-bold text-center text-cyan-500 mb-4">

@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { useTranslationContext } from "@/context/TranslationContext";
-import { translateText } from "@/utils/translate";
+import { fetchTranslation } from "@/utils/TranslateModule/translateCache";
 
 interface FilterSectionProps {
   selectedType: string;
@@ -21,29 +21,42 @@ const FilterSection: React.FC<FilterSectionProps> = ({
   setSelectedType,
 }) => {
   const { language } = useTranslationContext();
+
   const [translatedTypes, setTranslatedTypes] = useState({
-    deposits: "입금",
-    withdrawals: "출금",
-    packagePurchases: "Package Purchases",
-    referralEarnings: "Referral Earnings",
+    filterTransactions: "거래 필터",
+    deposits: "입금내역",
+    withdrawals: "출금내역",
+    packagePurchases: "패키지 구매내역",
+    referralEarnings: "추천 수익",
   });
 
   useEffect(() => {
     const fetchTranslations = async () => {
-      const [deposits, withdrawals, packagePurchases, referralEarnings] =
-        await Promise.all([
-          translateText("입금", language),
-          translateText("출금", language),
-          translateText("Package Purchases", language),
-          translateText("Referral Earnings", language),
-        ]);
+      const keys = [
+        { key: "filterTransactions", text: "거래 필터" },
+        { key: "deposits", text: "입금내역" },
+        { key: "withdrawals", text: "출금내역" },
+        { key: "packagePurchases", text: "패키지 구매내역" },
+        { key: "referralEarnings", text: "추천 수익내역" },
+      ];
 
-      setTranslatedTypes({
-        deposits,
-        withdrawals,
-        packagePurchases,
-        referralEarnings,
-      });
+      try {
+        const translations = await Promise.all(
+          keys.map((item) => fetchTranslation(item.text, language))
+        );
+
+        const updatedTypes = keys.reduce(
+          (acc, item, index) => {
+            acc[item.key as keyof typeof translatedTypes] = translations[index];
+            return acc;
+          },
+          { ...translatedTypes }
+        );
+
+        setTranslatedTypes(updatedTypes);
+      } catch (error) {
+        console.error("[ERROR] Failed to fetch translations:", error);
+      }
     };
 
     fetchTranslations();
@@ -52,7 +65,7 @@ const FilterSection: React.FC<FilterSectionProps> = ({
   return (
     <div className="p-4 bg-gray-800 rounded-lg border border-cyan-500">
       <h3 className="text-2xl font-bold text-cyan-400 mb-4">
-        Filter Transactions
+        {translatedTypes.filterTransactions}
       </h3>
       <select
         value={selectedType}

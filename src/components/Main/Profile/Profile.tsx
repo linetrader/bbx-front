@@ -1,90 +1,100 @@
-// src/components/Profile/ProfileMain.tsx
-
 "use client";
 
 import React, { useState, useEffect } from "react";
 import { useProfile } from "@/hooks/useProfile";
 import { useTranslationContext } from "@/context/TranslationContext";
-import { translateText } from "@/utils/translate";
+import { fetchTranslation } from "@/utils/TranslateModule/translateCache";
 import OtpSection from "./OtpSection";
-import Modal from "./Modal";
 
-export default function ProfileMain() {
+export default function Profile() {
   const {
     userData,
     loading,
     error,
     isOtpEnabled,
-    setIsOtpEnabled,
     otpData,
+    setIsOtpEnabled,
     handleGenerateOtp,
+    handleVerifyAndSaveOtp,
   } = useProfile();
 
   const { language } = useTranslationContext();
 
   const [translatedTexts, setTranslatedTexts] = useState({
     profileTitle: "프로필",
-    loading: "Loading...",
-    noProfileData: "No profile data found.",
-    username: "Username",
-    email: "Email",
-    firstName: "First Name",
-    lastName: "Last Name",
-    otpStatus: "OTP Status",
-    otpOn: "On",
-    otpOff: "Off",
-    generateOtp: "Generate OTP",
+    loading: "로딩 중...",
+    noProfileData: "프로필 데이터를 찾을 수 없습니다.",
+    username: "사용자 이름",
+    email: "이메일",
+    firstName: "이름",
+    lastName: "성",
+    otpStatus: "OTP 상태",
+    otpOn: "활성화",
+    otpOff: "비활성화",
+    generateOtp: "OTP 생성",
   });
 
-  const [isModalOpen, setModalOpen] = useState(false);
   const [step, setStep] = useState<"qr" | "verify">("qr");
+  const [isModalOpen, setModalOpen] = useState(false);
 
   useEffect(() => {
     const fetchTranslations = async () => {
-      const translations = await Promise.all([
-        translateText("프로필", language),
-        translateText("Loading...", language),
-        translateText("No profile data found.", language),
-        translateText("Username", language),
-        translateText("Email", language),
-        translateText("First Name", language),
-        translateText("Last Name", language),
-        translateText("OTP Status", language),
-        translateText("On", language),
-        translateText("Off", language),
-        translateText("Generate OTP", language),
-      ]);
+      const keys = [
+        { key: "profileTitle", text: "프로필" },
+        { key: "loading", text: "로딩 중..." },
+        { key: "noProfileData", text: "프로필 데이터를 찾을 수 없습니다." },
+        { key: "username", text: "사용자 이름" },
+        { key: "email", text: "이메일" },
+        { key: "firstName", text: "이름" },
+        { key: "lastName", text: "성" },
+        { key: "otpStatus", text: "OTP 상태" },
+        { key: "otpOn", text: "활성화" },
+        { key: "otpOff", text: "비활성화" },
+        { key: "generateOtp", text: "OTP 생성" },
+      ];
 
-      setTranslatedTexts({
-        profileTitle: translations[0],
-        loading: translations[1],
-        noProfileData: translations[2],
-        username: translations[3],
-        email: translations[4],
-        firstName: translations[5],
-        lastName: translations[6],
-        otpStatus: translations[7],
-        otpOn: translations[8],
-        otpOff: translations[9],
-        generateOtp: translations[10],
-      });
+      try {
+        const translations = await Promise.all(
+          keys.map((item) => fetchTranslation(item.text, language))
+        );
+
+        const updatedTexts = keys.reduce(
+          (acc, item, index) => {
+            acc[item.key as keyof typeof translatedTexts] = translations[index];
+            return acc;
+          },
+          { ...translatedTexts }
+        );
+
+        setTranslatedTexts(updatedTexts);
+      } catch (error) {
+        console.error("[ERROR] Failed to fetch translations:", error);
+      }
     };
 
     fetchTranslations();
   }, [language]);
 
+  const handleGenerateOtpWithState = async () => {
+    const otp = await handleGenerateOtp();
+    if (otp) {
+      setStep("qr");
+      setModalOpen(true);
+    }
+  };
+
+  const handleVerifyOtp = async (otp: string) => {
+    const isVerified = await handleVerifyAndSaveOtp(otp);
+    if (isVerified) {
+      setIsOtpEnabled(true);
+      alert("OTP 인증이 성공적으로 완료되었습니다!");
+    } else {
+      alert("잘못된 OTP입니다. 다시 시도해주세요.");
+    }
+  };
+
   const containerStyles =
     "bg-gray-900/80 p-8 rounded-lg shadow-2xl w-full max-w-md border border-cyan-500";
-
-  const handleGenerateOtpWithModal = async () => {
-    await handleGenerateOtp();
-    setStep("qr");
-    setModalOpen(true);
-  };
-
-  const handleCloseModal = () => {
-    setModalOpen(false);
-  };
 
   return (
     <div className="flex flex-col h-[70vh]">
@@ -107,7 +117,7 @@ export default function ProfileMain() {
               {translatedTexts.loading}
             </div>
           ) : userData ? (
-            <div className="text-sm text-gray-300">
+            <div className="text-left">
               <div className="mb-4 p-4 border rounded border-cyan-500 bg-gray-800">
                 <p className="mb-2">
                   <span className="font-bold text-cyan-400">
@@ -145,7 +155,7 @@ export default function ProfileMain() {
                   {!isOtpEnabled && (
                     <button
                       className="bg-cyan-500 hover:bg-cyan-400 text-black font-bold py-1 px-2 rounded ml-4"
-                      onClick={handleGenerateOtpWithModal}
+                      onClick={handleGenerateOtpWithState}
                     >
                       {translatedTexts.generateOtp}
                     </button>
@@ -160,46 +170,14 @@ export default function ProfileMain() {
           )}
         </div>
       </main>
-      <OtpSection setIsOtpEnabled={setIsOtpEnabled} />
-
-      {otpData && (
-        <Modal isOpen={isModalOpen} onClose={handleCloseModal}>
-          {step === "qr" ? (
-            <div className="p-6">
-              <h2 className="text-2xl font-bold text-cyan-400 mb-4">
-                {translatedTexts.generateOtp}
-              </h2>
-              <p className="text-cyan-400 font-bold mb-2">QR Code</p>
-              <img
-                src={otpData.qrCode}
-                alt="OTP QR Code"
-                className="mt-2 border border-cyan-500 rounded mb-4"
-              />
-              <p className="text-sm text-gray-400">
-                Manual Key: {otpData.manualKey}
-              </p>
-              <button
-                className="bg-cyan-500 hover:bg-cyan-400 text-black font-bold py-1 px-4 rounded"
-                onClick={() => setStep("verify")}
-              >
-                Next
-              </button>
-            </div>
-          ) : (
-            <div className="p-6">
-              <h2 className="text-2xl font-bold text-cyan-400 mb-4">
-                Verify OTP
-              </h2>
-              <input
-                type="text"
-                className="w-full px-4 py-2 border border-cyan-500 rounded bg-gray-800 text-white"
-              />
-              <button className="bg-cyan-500 hover:bg-cyan-400 text-black font-bold py-1 px-4 rounded mt-4">
-                Verify
-              </button>
-            </div>
-          )}
-        </Modal>
+      {isModalOpen && (
+        <OtpSection
+          otpData={otpData}
+          step={step}
+          setStep={setStep}
+          handleVerifyOtp={handleVerifyOtp}
+          onClose={() => setModalOpen(false)}
+        />
       )}
     </div>
   );

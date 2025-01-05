@@ -5,37 +5,47 @@
 import React, { useEffect, useState } from "react";
 import { useDashboard } from "@/hooks/useDashboard";
 import { useTranslationContext } from "@/context/TranslationContext";
-import { translateText } from "@/utils/translate";
+import { fetchTranslation } from "@/utils/TranslateModule/translateCache";
 
 export default function Dashboard() {
   const { miningData, referralRewards, loading, error } = useDashboard();
   const { language } = useTranslationContext();
 
   const [translatedTexts, setTranslatedTexts] = useState({
-    dashboardTitle: "Dashboard",
-    loadingText: "Loading...",
-    errorText: "Error",
-    miningProfitTitle: "Mining Profit",
-    referralRewardsTitle: "Referral Rewards",
+    dashboardTitle: "대시보드",
+    loadingText: "로딩 중...",
+    errorText: "오류 발생",
+    miningProfitTitle: "채굴 수익",
+    referralRewardsTitle: "추천 보상",
   });
 
   useEffect(() => {
     const fetchTranslations = async () => {
-      const translations = await Promise.all([
-        translateText("Dashboard", "en"),
-        translateText("Loading...", language),
-        translateText("Error", language),
-        translateText("Mining Profit", language),
-        translateText("Referral Rewards", language),
-      ]);
+      try {
+        const keys = [
+          { key: "dashboardTitle", text: "대시보드" },
+          { key: "loadingText", text: "로딩 중..." },
+          { key: "errorText", text: "오류 발생" },
+          { key: "miningProfitTitle", text: "채굴 수익" },
+          { key: "referralRewardsTitle", text: "추천 보상" },
+        ];
 
-      setTranslatedTexts({
-        dashboardTitle: translations[0],
-        loadingText: translations[1],
-        errorText: translations[2],
-        miningProfitTitle: translations[3],
-        referralRewardsTitle: translations[4],
-      });
+        const translations = await Promise.all(
+          keys.map((item) => fetchTranslation(item.text, language))
+        );
+
+        const updatedTranslations = keys.reduce(
+          (acc, item, index) => {
+            acc[item.key as keyof typeof translatedTexts] = translations[index];
+            return acc;
+          },
+          { ...translatedTexts }
+        );
+
+        setTranslatedTexts(updatedTranslations);
+      } catch (error) {
+        console.error("[ERROR] Failed to fetch translations:", error);
+      }
     };
 
     fetchTranslations();
@@ -67,7 +77,7 @@ export default function Dashboard() {
                 {miningData?.map((data, index) => (
                   <p key={index} className="text-lg text-gray-300 mb-2">
                     <span className="font-bold text-cyan-400">
-                      {data.packageType} Mined:
+                      {data.packageType} 채굴:
                     </span>{" "}
                     {data.miningBalance}
                   </p>
@@ -82,7 +92,7 @@ export default function Dashboard() {
                 {referralRewards?.map((reward, index) => (
                   <p key={index} className="text-lg text-gray-300 mb-2">
                     <span className="font-bold text-cyan-400">
-                      {reward.packageType} Referral Rewards:
+                      {reward.packageType} 추천 보상:
                     </span>{" "}
                     {reward.referralBalance}
                   </p>

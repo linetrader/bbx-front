@@ -9,7 +9,7 @@ import ContractInfo from "./ContractInfo";
 import FullContractModal from "./FullContractModal";
 import useCustomerInfo from "../../../hooks/useCustomerInfo";
 import { useTranslationContext } from "@/context/TranslationContext";
-import { translateText } from "@/utils/translate";
+import { fetchTranslation } from "@/utils/TranslateModule/translateCache";
 
 export default function ContractModal({
   selectedPackage,
@@ -31,54 +31,57 @@ export default function ContractModal({
   const { language } = useTranslationContext();
 
   const [translatedTexts, setTranslatedTexts] = useState({
-    confirmPurchaseTitle: "Confirm Purchase",
-    loadingContract: "Loading contract details...",
-    cancelButton: "Cancel",
-    confirmButton: "Confirm",
-    enterName: "Please enter your name.",
-    enterPhone: "Please enter your phone number.",
-    enterAddress: "Please enter your address.",
-    agreeToTerms: "You must agree to the terms before purchasing.",
-    companyNameLabel: "Company Name",
-    companyAddressLabel: "Company Address",
-    businessNumberLabel: "Business Number",
-    representativeLabel: "Representative",
+    confirmPurchaseTitle: "구매 확인",
+    loadingContract: "계약 세부 정보를 로드 중...",
+    cancelButton: "취소",
+    confirmButton: "확인",
+    enterName: "이름을 입력하세요.",
+    enterPhone: "전화번호를 입력하세요.",
+    enterAddress: "주소를 입력하세요.",
+    agreeToTerms: "구매 전에 약관에 동의해야 합니다.",
+    companyNameLabel: "회사 이름",
+    companyAddressLabel: "회사 주소",
+    businessNumberLabel: "사업자 번호",
+    representativeLabel: "대표자",
   });
 
   useEffect(() => {
     const fetchTranslations = async () => {
-      const translations = await Promise.all([
-        translateText("Confirm Purchase", language),
-        translateText("Loading contract details...", language),
-        translateText("Cancel", language),
-        translateText("Confirm", language),
-        translateText("Please enter your name.", language),
-        translateText("Please enter your phone number.", language),
-        translateText("Please enter your address.", language),
-        translateText(
-          "You must agree to the terms before purchasing.",
-          language
-        ),
-        translateText("Company Name", language),
-        translateText("Company Address", language),
-        translateText("Business Number", language),
-        translateText("Representative", language),
-      ]);
+      try {
+        const keys = [
+          { key: "confirmPurchaseTitle", text: "구매 확인" },
+          { key: "loadingContract", text: "계약 세부 정보를 로드 중..." },
+          { key: "cancelButton", text: "취소" },
+          { key: "confirmButton", text: "확인" },
+          { key: "enterName", text: "이름을 입력하세요." },
+          { key: "enterPhone", text: "전화번호를 입력하세요." },
+          { key: "enterAddress", text: "주소를 입력하세요." },
+          {
+            key: "agreeToTerms",
+            text: "구매 전에 약관에 동의해야 합니다.",
+          },
+          { key: "companyNameLabel", text: "회사 이름" },
+          { key: "companyAddressLabel", text: "회사 주소" },
+          { key: "businessNumberLabel", text: "사업자 번호" },
+          { key: "representativeLabel", text: "대표자" },
+        ];
 
-      setTranslatedTexts({
-        confirmPurchaseTitle: translations[0],
-        loadingContract: translations[1],
-        cancelButton: translations[2],
-        confirmButton: translations[3],
-        enterName: translations[4],
-        enterPhone: translations[5],
-        enterAddress: translations[6],
-        agreeToTerms: translations[7],
-        companyNameLabel: translations[8],
-        companyAddressLabel: translations[9],
-        businessNumberLabel: translations[10],
-        representativeLabel: translations[11],
-      });
+        const translations = await Promise.all(
+          keys.map((item) => fetchTranslation(item.text, language))
+        );
+
+        const updatedTexts = keys.reduce(
+          (acc, item, index) => {
+            acc[item.key as keyof typeof translatedTexts] = translations[index];
+            return acc;
+          },
+          { ...translatedTexts }
+        );
+
+        setTranslatedTexts(updatedTexts);
+      } catch (error) {
+        console.error("[ERROR] Failed to fetch translations:", error);
+      }
     };
 
     fetchTranslations();
@@ -133,7 +136,7 @@ export default function ContractModal({
 
             {defaultContract ? (
               <ContractInfo
-                contractContent={defaultContract.content} // 배열의 첫 번째 단락만 전달
+                contractContent={defaultContract.content}
                 showFullContract={showFullContract}
                 setShowFullContract={setShowFullContract}
               />

@@ -7,7 +7,6 @@ import MainContent from "@/components/Main/MainContent";
 import FooterNavigation from "@/components/Footer/FooterNavigation";
 
 export default function Dashboard() {
-  const [menuOpen, setMenuOpen] = useState(false);
   const [activeScreen, setActiveScreen] = useState("Home");
 
   return (

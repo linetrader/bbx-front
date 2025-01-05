@@ -1,9 +1,11 @@
 // components/Wallet.tsx
+
 "use client";
 
 import React, { useState, useEffect } from "react";
 import { useWallet } from "@/hooks/useWallet";
-import OtpModal from "../../OtpModal";
+import { useTranslationContext } from "@/context/TranslationContext";
+import { fetchTranslation } from "@/utils/TranslateModule/translateCache";
 import DepositSection from "./DepositSection";
 import WithdrawSection from "./WithdrawSection";
 
@@ -16,29 +18,69 @@ export default function Wallet() {
   const {
     walletData,
     miningData,
+    pendingWithdrawals,
     loading,
     error,
-    createWallet,
-    withdrawalAmounts,
-    handleInputChange,
-    handleWithdrawClick,
-    handleConfirmWithdraw,
-    otp,
-    setOtp,
     fetchDepositWallet,
     fetchMiningData,
     fetchPendingWithdrawals,
-    pendingWithdrawals,
+    createWallet,
+    handleConfirmWithdraw,
+    saveWithdrawAddress,
   } = useWallet();
 
-  const [isOtpModalOpen, setOtpModalOpen] = useState<boolean>(false);
+  const { language } = useTranslationContext();
+
   const [viewMode, setViewMode] = useState<ViewMode>(ViewMode.DEPOSIT);
+
+  const [translatedTexts, setTranslatedTexts] = useState({
+    deposit: "입금",
+    withdraw: "출금",
+  });
+
+  const handleSaveWithdrawAddress = async (address: string, otp: string) => {
+    //console.log("handleSaveWithdrawAddress - address", address);
+    //console.log("handleSaveWithdrawAddress - otp", otp);
+    await saveWithdrawAddress(address, otp);
+    return true;
+  };
+
+  useEffect(() => {
+    const fetchTranslations = async () => {
+      const keys = [
+        { key: "deposit", text: "입금" },
+        { key: "withdraw", text: "출금" },
+      ];
+
+      try {
+        const translations = await Promise.all(
+          keys.map((item) => fetchTranslation(item.text, language))
+        );
+
+        const updatedTexts = keys.reduce(
+          (acc, item, index) => {
+            acc[item.key as keyof typeof translatedTexts] = translations[index];
+            return acc;
+          },
+          { ...translatedTexts }
+        );
+
+        setTranslatedTexts(updatedTexts);
+      } catch (error) {
+        console.error("[ERROR] Failed to fetch translations:", error);
+      }
+    };
+
+    fetchTranslations();
+  }, [language]);
 
   useEffect(() => {
     if (viewMode === ViewMode.DEPOSIT) {
       fetchDepositWallet();
       fetchMiningData();
     } else if (viewMode === ViewMode.WITHDRAW) {
+      fetchDepositWallet();
+      fetchMiningData();
       fetchPendingWithdrawals();
     }
   }, [viewMode]);
@@ -56,7 +98,7 @@ export default function Wallet() {
                   : "bg-gray-700 text-gray-300 hover:bg-gray-600"
               }`}
             >
-              Deposit
+              {translatedTexts.deposit}
             </button>
             <button
               onClick={() => setViewMode(ViewMode.WITHDRAW)}
@@ -66,7 +108,7 @@ export default function Wallet() {
                   : "bg-gray-700 text-gray-300 hover:bg-gray-600"
               }`}
             >
-              Withdraw
+              {translatedTexts.withdraw}
             </button>
           </div>
 
@@ -80,26 +122,16 @@ export default function Wallet() {
             />
           ) : (
             <WithdrawSection
-              withdrawalAmounts={withdrawalAmounts}
-              handleInputChange={handleInputChange}
-              handleWithdrawClick={handleWithdrawClick}
               loading={loading}
+              walletData={walletData}
+              miningData={miningData}
+              handleSaveWithdrawAddress={handleSaveWithdrawAddress}
               pendingWithdrawals={pendingWithdrawals}
+              handleConfirmWithdraw={handleConfirmWithdraw}
             />
           )}
         </div>
       </main>
-
-      <OtpModal
-        isOpen={isOtpModalOpen}
-        otp={otp}
-        setOtp={setOtp}
-        onClose={() => setOtpModalOpen(false)}
-        onConfirm={(otpValue) => {
-          handleConfirmWithdraw(otpValue);
-          setOtpModalOpen(false);
-        }}
-      />
     </div>
   );
 }

@@ -1,5 +1,3 @@
-// src/utils/translate.ts
-
 import axios from "axios";
 
 /**
@@ -20,10 +18,8 @@ export async function translateText(
   }
 
   if (!apiUrl) {
-    throw new Error("Google API Url is missing");
+    throw new Error("Google API URL is missing");
   }
-
-  //console.log("targetLang : ", targetLang, "=== text : ", text);
 
   try {
     const response = await axios.get(apiUrl, {

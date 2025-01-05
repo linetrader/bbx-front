@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 import { FiCopy } from "react-icons/fi";
 import { Transaction } from "../../../hooks/types/common";
 import { useTranslationContext } from "@/context/TranslationContext";
-import { translateText } from "@/utils/translate";
+import { fetchTranslation } from "@/utils/TranslateModule/translateCache";
 
 interface TransactionsSectionProps {
   transactions: Transaction[] | undefined;
@@ -14,44 +14,54 @@ const TransactionsSection: React.FC<TransactionsSectionProps> = ({
   transactions = [],
 }) => {
   const { language } = useTranslationContext();
+
   const [translatedTexts, setTranslatedTexts] = useState({
-    filteredTransactions: "입출금 기록",
-    type: "Type",
+    filteredTransactions: "트랜잭션 내역",
+    type: "유형",
     amount: "수량",
-    token: "Token",
-    date: "Date",
-    transactionHash: "Transaction Hash",
-    copySuccess: "Transaction hash copied to clipboard!",
-    copyError: "Failed to copy transaction hash. Please try again.",
+    token: "토큰",
+    date: "날짜",
+    transactionHash: "트랜잭션 해시",
+    copySuccess: "트랜잭션 해시가 클립보드에 복사되었습니다!",
+    copyError: "트랜잭션 해시 복사에 실패했습니다. 다시 시도해주세요.",
   });
 
-  // 번역된 텍스트 가져오기
   useEffect(() => {
     const fetchTranslations = async () => {
-      const translations = await Promise.all([
-        translateText("입출금 기록", language),
-        translateText("Type", language),
-        translateText("수량", language),
-        translateText("Token", language),
-        translateText("Date", language),
-        translateText("Transaction Hash", language),
-        translateText("Transaction hash copied to clipboard!", language),
-        translateText(
-          "Failed to copy transaction hash. Please try again.",
-          language
-        ),
-      ]);
+      try {
+        const keys = [
+          { key: "filteredTransactions", text: "트랜잭션 내역" },
+          { key: "type", text: "유형" },
+          { key: "amount", text: "수량" },
+          { key: "token", text: "토큰" },
+          { key: "date", text: "날짜" },
+          { key: "transactionHash", text: "트랜잭션 해시" },
+          {
+            key: "copySuccess",
+            text: "트랜잭션 해시가 클립보드에 복사되었습니다!",
+          },
+          {
+            key: "copyError",
+            text: "트랜잭션 해시 복사에 실패했습니다. 다시 시도해주세요.",
+          },
+        ];
 
-      setTranslatedTexts({
-        filteredTransactions: translations[0],
-        type: translations[1],
-        amount: translations[2],
-        token: translations[3],
-        date: translations[4],
-        transactionHash: translations[5],
-        copySuccess: translations[6],
-        copyError: translations[7],
-      });
+        const translations = await Promise.all(
+          keys.map((item) => fetchTranslation(item.text, language))
+        );
+
+        const updatedTranslations = keys.reduce(
+          (acc, item, index) => {
+            acc[item.key as keyof typeof translatedTexts] = translations[index];
+            return acc;
+          },
+          { ...translatedTexts }
+        );
+
+        setTranslatedTexts(updatedTranslations);
+      } catch (error) {
+        console.error("[ERROR] Failed to fetch translations:", error);
+      }
     };
 
     fetchTranslations();

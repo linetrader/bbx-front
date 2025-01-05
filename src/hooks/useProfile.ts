@@ -59,7 +59,7 @@ export function useProfile() {
     }
   };
 
-  const handleGenerateOtp = async () => {
+  const handleGenerateOtp = async (): Promise<boolean> => {
     try {
       const { data } = await graphqlRequest(
         `
@@ -71,10 +71,17 @@ export function useProfile() {
           }
         `
       );
-      setOtpData(data.generateOTP);
+
+      if (data) {
+        console.log("handleGenerateOtp - data", data.generateOTP);
+        setOtpData(data.generateOTP);
+        return true;
+      }
     } catch (err: any) {
       setError(err.message || "Failed to generate OTP.");
+      return false;
     }
+    return false;
   };
 
   const handleVerifyAndSaveOtp = async (otp: string): Promise<boolean> => {
@@ -87,6 +94,8 @@ export function useProfile() {
         `,
         { otp }
       );
+
+      console.log("handleVerifyAndSaveOtp - otp", otp);
 
       if (data.verifyAndSaveOTP) {
         setIsOtpEnabled(true); // OTP 등록 성공 시 상태 업데이트
@@ -109,6 +118,7 @@ export function useProfile() {
     error,
     otpData,
     isOtpEnabled,
+    setOtpData,
     setIsOtpEnabled, // 반환 추가
     handleGenerateOtp,
     handleVerifyAndSaveOtp,

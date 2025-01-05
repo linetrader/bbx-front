@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { PurchaseRecord } from "../../../hooks/types/common";
 import { useTranslationContext } from "@/context/TranslationContext";
-import { translateText } from "@/utils/translate";
+import { fetchTranslation } from "@/utils/TranslateModule/translateCache";
 
 interface PurchasesSectionProps {
   purchases: PurchaseRecord[] | null;
@@ -13,37 +13,48 @@ const PurchasesSection: React.FC<PurchasesSectionProps> = ({
   purchases = [],
 }) => {
   const { language } = useTranslationContext();
+
   const [translatedTexts, setTranslatedTexts] = useState({
-    packagePurchases: "Package Purchases",
-    packageName: "Package Name",
-    quantity: "Quantity",
-    totalPrice: "Total Price",
-    date: "Date",
+    packagePurchases: "패키지 구매",
+    packageName: "패키지 이름",
+    quantity: "수량",
+    totalPrice: "총 가격",
+    date: "날짜",
   });
 
   useEffect(() => {
     const fetchTranslations = async () => {
-      const translations = await Promise.all([
-        translateText("Package Purchases", language),
-        translateText("Package Name", language),
-        translateText("Quantity", language),
-        translateText("Total Price", language),
-        translateText("Date", language),
-      ]);
+      const keys = [
+        { key: "packagePurchases", text: "패키지 구매" },
+        { key: "packageName", text: "패키지 이름" },
+        { key: "quantity", text: "수량" },
+        { key: "totalPrice", text: "총 가격" },
+        { key: "date", text: "날짜" },
+      ];
 
-      setTranslatedTexts({
-        packagePurchases: translations[0],
-        packageName: translations[1],
-        quantity: translations[2],
-        totalPrice: translations[3],
-        date: translations[4],
-      });
+      try {
+        const translations = await Promise.all(
+          keys.map((item) => fetchTranslation(item.text, language))
+        );
+
+        const updatedTexts = keys.reduce(
+          (acc, item, index) => {
+            acc[item.key as keyof typeof translatedTexts] = translations[index];
+            return acc;
+          },
+          { ...translatedTexts }
+        );
+
+        setTranslatedTexts(updatedTexts);
+      } catch (error) {
+        console.error("[ERROR] Failed to fetch translations:", error);
+      }
     };
 
     fetchTranslations();
   }, [language]);
 
-  if (purchases === null || purchases.length === 0) return null;
+  if (!purchases || purchases.length === 0) return null;
 
   return (
     <div className="p-4 bg-gray-800 rounded-lg border border-cyan-500">

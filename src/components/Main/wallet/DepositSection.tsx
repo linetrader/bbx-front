@@ -5,7 +5,7 @@
 import React, { useEffect, useState } from "react";
 import { FiCopy } from "react-icons/fi"; // React Icons에서 복사 아이콘 가져오기
 import { useTranslationContext } from "@/context/TranslationContext";
-import { translateText } from "@/utils/translate";
+import { fetchTranslation } from "@/utils/TranslateModule/translateCache";
 
 interface DepositSectionProps {
   error: string | null;
@@ -25,51 +25,58 @@ export default function DepositSection({
   const { language } = useTranslationContext();
 
   const [translatedTexts, setTranslatedTexts] = useState({
-    title: "Deposit Wallet",
-    walletNotFound: "Wallet not found. Please create a wallet.",
-    loading: "Loading...",
-    walletAddress: "Wallet Address:",
-    usdtBalance: "USDT Balance:",
-    dogeBalance: "DOGE Balance:",
-    btcBalance: "BTC Balance:",
-    copied: "Wallet address copied to clipboard!",
-    copyFailed: "Failed to copy wallet address. Please try again.",
-    createWallet: "Create Wallet",
-    creatingWallet: "Creating Wallet...",
+    title: "입금 지갑",
+    walletNotFound: "지갑을 찾을 수 없습니다. 지갑을 생성하세요.",
+    loading: "로딩 중...",
+    walletAddress: "지갑 주소:",
+    usdtBalance: "USDT 수량:",
+    dogeBalance: "DOGE 수량:",
+    btcBalance: "BTC 수량:",
+    copied: "지갑 주소가 클립보드에 복사되었습니다!",
+    copyFailed: "지갑 주소 복사에 실패했습니다. 다시 시도하세요.",
+    createWallet: "지갑 생성",
+    creatingWallet: "지갑 생성 중...",
   });
 
   useEffect(() => {
     const fetchTranslations = async () => {
-      const translations = await Promise.all([
-        translateText("Deposit Wallet", language),
-        translateText("Wallet not found. Please create a wallet.", language),
-        translateText("Loading...", language),
-        translateText("Wallet Address:", language),
-        translateText("USDT Balance:", language),
-        translateText("DOGE Balance:", language),
-        translateText("BTC Balance:", language),
-        translateText("Wallet address copied to clipboard!", language),
-        translateText(
-          "Failed to copy wallet address. Please try again.",
-          language
-        ),
-        translateText("Create Wallet", language),
-        translateText("Creating Wallet...", language),
-      ]);
+      const keys = [
+        { key: "title", text: "입금 지갑" },
+        {
+          key: "walletNotFound",
+          text: "지갑을 찾을 수 없습니다. 지갑을 생성하세요.",
+        },
+        { key: "loading", text: "로딩 중..." },
+        { key: "walletAddress", text: "지갑 주소:" },
+        { key: "usdtBalance", text: "USDT 수량:" },
+        { key: "dogeBalance", text: "DOGE 수량:" },
+        { key: "btcBalance", text: "BTC 수량:" },
+        { key: "copied", text: "지갑 주소가 클립보드에 복사되었습니다!" },
+        {
+          key: "copyFailed",
+          text: "지갑 주소 복사에 실패했습니다. 다시 시도하세요.",
+        },
+        { key: "createWallet", text: "지갑 생성" },
+        { key: "creatingWallet", text: "지갑 생성 중..." },
+      ];
 
-      setTranslatedTexts({
-        title: translations[0],
-        walletNotFound: translations[1],
-        loading: translations[2],
-        walletAddress: translations[3],
-        usdtBalance: translations[4],
-        dogeBalance: translations[5],
-        btcBalance: translations[6],
-        copied: translations[7],
-        copyFailed: translations[8],
-        createWallet: translations[9],
-        creatingWallet: translations[10],
-      });
+      try {
+        const translations = await Promise.all(
+          keys.map((item) => fetchTranslation(item.text, language))
+        );
+
+        const updatedTexts = keys.reduce(
+          (acc, item, index) => {
+            acc[item.key as keyof typeof translatedTexts] = translations[index];
+            return acc;
+          },
+          { ...translatedTexts }
+        );
+
+        setTranslatedTexts(updatedTexts);
+      } catch (error) {
+        console.error("[ERROR] Failed to fetch translations:", error);
+      }
     };
 
     fetchTranslations();
@@ -88,7 +95,13 @@ export default function DepositSection({
     const balanceData = miningData.find(
       (data: any) => data.packageType === type
     );
-    return balanceData ? balanceData.miningBalance : "0";
+
+    if (balanceData && balanceData.miningBalance) {
+      // 소수점 6자리로 변환
+      return parseFloat(balanceData.miningBalance).toFixed(6);
+    }
+
+    return "0.000000";
   };
 
   return (
@@ -146,12 +159,6 @@ export default function DepositSection({
                 {translatedTexts.dogeBalance}
               </p>
               <p className="text-gray-300">{getBalanceByType("DOGE")}</p>
-            </div>
-            <div className="mb-4">
-              <p className="text-cyan-400 font-bold">
-                {translatedTexts.btcBalance}
-              </p>
-              <p className="text-gray-300">{getBalanceByType("BTC")}</p>
             </div>
           </div>
         </div>

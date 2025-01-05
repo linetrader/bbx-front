@@ -15,8 +15,8 @@ export interface LanguageOption {
 export const options: LanguageOption[] = [
   { label: "USA", flag: "US", value: "en" },
   { label: "KOR", flag: "KR", value: "ko" },
-  { label: "JPA", flag: "JP", value: "jp" },
-  { label: "CHN", flag: "CN", value: "cn" },
+  { label: "JPA", flag: "JP", value: "ja" },
+  { label: "CHN", flag: "CN", value: "zh" },
 ];
 
 export function useHeader() {

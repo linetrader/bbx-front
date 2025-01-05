@@ -6,7 +6,7 @@ import React, { useEffect, useState } from "react";
 import { useRegister } from "@/hooks/useRegister";
 import { useRouter } from "next/navigation";
 import { useTranslationContext } from "@/context/TranslationContext";
-import { translateText } from "@/utils/translate";
+import { fetchTranslation } from "@/utils/TranslateModule/translateCache";
 
 export default function Register() {
   const {
@@ -22,51 +22,54 @@ export default function Register() {
   const { language } = useTranslationContext();
 
   const [translatedTexts, setTranslatedTexts] = useState({
-    registerTitle: "Sign Up",
-    usernamePlaceholder: "Username",
-    firstnamePlaceholder: "First Name",
-    lastnamePlaceholder: "Last Name",
-    emailPlaceholder: "Email",
-    passwordPlaceholder: "Password",
-    confirmPasswordPlaceholder: "Confirm Password",
-    referrerPlaceholder: "Referrer (Optional)",
-    registering: "Registering...",
-    registerButton: "Register",
-    alreadyHaveAccount: "Already have an account?",
-    loginHere: "Login here",
+    registerTitle: "회원가입",
+    usernamePlaceholder: "사용자명",
+    firstnamePlaceholder: "이름",
+    lastnamePlaceholder: "성",
+    emailPlaceholder: "이메일",
+    passwordPlaceholder: "비밀번호",
+    confirmPasswordPlaceholder: "비밀번호 확인",
+    referrerPlaceholder: "추천인 (선택사항)",
+    registering: "회원가입 중...",
+    registerButton: "가입하기",
+    alreadyHaveAccount: "이미 계정이 있으신가요?",
+    loginHere: "로그인하기",
   });
 
   useEffect(() => {
     const fetchTranslations = async () => {
-      const translations = await Promise.all([
-        translateText("Sign Up", language),
-        translateText("Username", language),
-        translateText("First Name", language),
-        translateText("Last Name", language),
-        translateText("Email", language),
-        translateText("Password", language),
-        translateText("Confirm Password", language),
-        translateText("Referrer (Optional)", language),
-        translateText("Registering...", language),
-        translateText("Register", language),
-        translateText("Already have an account?", language),
-        translateText("Login here", language),
-      ]);
+      try {
+        const keys = [
+          { key: "registerTitle", text: "회원가입" },
+          { key: "usernamePlaceholder", text: "사용자명" },
+          { key: "firstnamePlaceholder", text: "이름" },
+          { key: "lastnamePlaceholder", text: "성" },
+          { key: "emailPlaceholder", text: "이메일" },
+          { key: "passwordPlaceholder", text: "비밀번호" },
+          { key: "confirmPasswordPlaceholder", text: "비밀번호 확인" },
+          { key: "referrerPlaceholder", text: "추천인 (선택사항)" },
+          { key: "registering", text: "회원가입 중..." },
+          { key: "registerButton", text: "가입하기" },
+          { key: "alreadyHaveAccount", text: "이미 계정이 있으신가요?" },
+          { key: "loginHere", text: "로그인하기" },
+        ];
 
-      setTranslatedTexts({
-        registerTitle: translations[0],
-        usernamePlaceholder: translations[1],
-        firstnamePlaceholder: translations[2],
-        lastnamePlaceholder: translations[3],
-        emailPlaceholder: translations[4],
-        passwordPlaceholder: translations[5],
-        confirmPasswordPlaceholder: translations[6],
-        referrerPlaceholder: translations[7],
-        registering: translations[8],
-        registerButton: translations[9],
-        alreadyHaveAccount: translations[10],
-        loginHere: translations[11],
-      });
+        const translations = await Promise.all(
+          keys.map((item) => fetchTranslation(item.text, language))
+        );
+
+        const updatedTranslations = keys.reduce(
+          (acc, item, index) => {
+            acc[item.key as keyof typeof translatedTexts] = translations[index];
+            return acc;
+          },
+          { ...translatedTexts }
+        );
+
+        setTranslatedTexts(updatedTranslations);
+      } catch (error) {
+        console.error("[ERROR] Failed to fetch translations:", error);
+      }
     };
 
     fetchTranslations();
@@ -82,7 +85,7 @@ export default function Register() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-black via-gray-900 to-black text-white flex flex-col items-center justify-center overflow-y-auto scrollbar-hide">
       {/* Main Content */}
-      <main className="w-[85%] bg-gray-900/80 p-8 rounded-lg shadow-2xl w-full max-w-lg border border-cyan-500 -mt-20">
+      <main className="w-[85%] bg-gray-900/80 p-8 rounded-lg shadow-2xl max-w-lg border border-cyan-500 -mt-20">
         <h1 className="text-4xl font-bold text-center text-cyan-400 mb-6 tracking-wide">
           {translatedTexts.registerTitle}
         </h1>
