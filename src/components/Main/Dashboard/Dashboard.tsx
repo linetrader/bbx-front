@@ -77,7 +77,7 @@ export default function Dashboard() {
                 {miningData?.map((data, index) => (
                   <p key={index} className="text-lg text-gray-300 mb-2">
                     <span className="font-bold text-cyan-400">
-                      {data.packageType} 채굴:
+                      {data.packageType} mined:
                     </span>{" "}
                     {data.miningBalance}
                   </p>

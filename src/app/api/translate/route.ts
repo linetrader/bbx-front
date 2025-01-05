@@ -13,10 +13,10 @@ const MAX_CACHE_SIZE = 1000;
 // JSON 파일에서 번역 데이터 로드
 const loadTranslationCache = async (): Promise<TranslationCache> => {
   try {
-    console.log("[DEBUG] Loading translation cache...");
+    //console.log("[DEBUG] Loading translation cache...");
     await fs.access(translationsFilePath); // 파일 접근 가능 여부 확인
     const data = await fs.readFile(translationsFilePath, "utf-8");
-    console.log("[DEBUG] Translation cache loaded.");
+    //console.log("[DEBUG] Translation cache loaded.");
     return JSON.parse(data) as TranslationCache;
   } catch (error) {
     console.warn("[WARN] Translation file not found. Using empty cache.");
@@ -27,13 +27,11 @@ const loadTranslationCache = async (): Promise<TranslationCache> => {
 // JSON 파일에 번역 데이터 저장
 const saveTranslationCache = async (cache: TranslationCache) => {
   try {
-    console.log("[DEBUG] Saving translation cache...");
+    //console.log("[DEBUG] Saving translation cache...");
     const keys = Object.keys(cache);
     if (keys.length > MAX_CACHE_SIZE) {
       const oldestKeys = keys.slice(0, keys.length - MAX_CACHE_SIZE);
-      console.log(
-        `[DEBUG] Trimming cache. Removing ${oldestKeys.length} entries.`
-      );
+      //console.log(`[DEBUG] Trimming cache. Removing ${oldestKeys.length} entries.`);
       oldestKeys.forEach((key) => delete cache[key]);
     }
     await fs.writeFile(
@@ -41,9 +39,9 @@ const saveTranslationCache = async (cache: TranslationCache) => {
       JSON.stringify(cache, null, 2),
       "utf-8"
     );
-    console.log("[DEBUG] Translation cache saved successfully.");
+    //console.log("[DEBUG] Translation cache saved successfully.");
   } catch (error) {
-    console.error("[ERROR] Failed to save translations:", error);
+    //console.error("[ERROR] Failed to save translations:", error);
   }
 };
 
@@ -62,21 +60,21 @@ export async function POST(req: NextRequest) {
     }
 
     const cacheKey = `${text}_${language}`;
-    console.log(`[DEBUG] Cache key: ${cacheKey}`);
+    //console.log(`[DEBUG] Cache key: ${cacheKey}`);
 
     // JSON 파일에서 캐시 로드
     const translationCache = await loadTranslationCache();
 
     // 캐시에서 번역 확인
     if (translationCache[cacheKey]) {
-      console.log("[DEBUG] Cache hit. Returning cached translation.");
+      //console.log("[DEBUG] Cache hit. Returning cached translation.");
       return NextResponse.json({ translation: translationCache[cacheKey] });
     }
 
     // 캐시에 없는 경우 번역
-    console.log("[DEBUG] Cache miss. Fetching translation from API...");
+    //console.log("[DEBUG] Cache miss. Fetching translation from API...");
     const translated = await translateText(text, language);
-    console.log("[DEBUG] Translation fetched from API:", translated);
+    //console.log("[DEBUG] Translation fetched from API:", translated);
 
     // 캐시에 추가하고 저장
     translationCache[cacheKey] = translated;
