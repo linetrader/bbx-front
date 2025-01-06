@@ -51,7 +51,7 @@ export default function WithdrawSection({
     withdrawWallet: "출금 지갑",
     enterWithdrawAddress: "출금 지갑 주소 입력",
     saveWithdrawAddress: "출금 지갑 주소 저장",
-    savedWithdrawAddress: "출금 지갑 주소",
+    savedWithdrawAddress: "주소",
     otpTitle: "OTP 입력",
     amountLabel: "수량",
     processing: "처리중...",
@@ -104,10 +104,7 @@ export default function WithdrawSection({
           "출금 지갑 주소 저장",
           language
         ),
-        savedWithdrawAddress: await fetchTranslation(
-          "출금 지갑 주소",
-          language
-        ),
+        savedWithdrawAddress: await fetchTranslation("주소", language),
         otpTitle: await fetchTranslation("OTP 입력", language),
         amountLabel: await fetchTranslation("수량", language),
         processing: await fetchTranslation("처리중...", language),
@@ -202,6 +199,26 @@ export default function WithdrawSection({
       : "0.000000";
   };
 
+  function shortenAddress(
+    address: string,
+    start: number = 10,
+    end: number = 10
+  ): string {
+    if (address.length <= start + end) return address; // 주소가 충분히 짧으면 그대로 반환
+    return `${address.slice(0, start)}......${address.slice(-end)}`;
+  }
+
+  function formatAddressForLineBreak(
+    address: string,
+    chunkSize: number = 16
+  ): string {
+    return (
+      address
+        .match(new RegExp(`.{1,${chunkSize}}`, "g")) // 주어진 길이(chunkSize)로 자름
+        ?.join("\n") || address
+    ); // 줄바꿈을 추가하여 반환
+  }
+
   useEffect(() => {
     fetchTranslations();
   }, [language]);
@@ -214,11 +231,12 @@ export default function WithdrawSection({
 
       {/* 출금 지갑 섹션 */}
       <div className="mb-4 p-4 border rounded border-cyan-500 bg-gray-800">
-        {!walletData?.whithdrawAddress ? (
+        {!walletData?.whithdrawAddress ||
+        walletData.whithdrawAddress === "0x" ? (
           <div>
             <input
               type="text"
-              value={withdrawAddress}
+              //value={withdrawAddress}
               onChange={(e) => setWithdrawAddress(e.target.value)}
               placeholder={translations.enterWithdrawAddress}
               className="w-full px-4 py-2 mb-4 border rounded focus:outline-none focus:ring-2 focus:ring-cyan-400 bg-gray-800 text-white placeholder-gray-400"
@@ -236,9 +254,9 @@ export default function WithdrawSection({
             </button>
           </div>
         ) : (
-          <p className="text-gray-300">
+          <p className="text-gray-300 break-words">
             <strong>{translations.savedWithdrawAddress}: </strong>
-            {walletData.whithdrawAddress}
+            {formatAddressForLineBreak(walletData.whithdrawAddress)}
           </p>
         )}
       </div>

@@ -149,6 +149,7 @@ export function useWallet() {
         mutation {
           createWallet {
             address
+            whithdrawAddress
             usdtBalance
           }
         }
