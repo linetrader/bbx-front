@@ -1,3 +1,5 @@
+// src/components/Main/Profile/Profile.tsx
+
 "use client";
 
 import React, { useState, useEffect } from "react";
@@ -32,10 +34,15 @@ export default function Profile() {
     otpOn: "활성화",
     otpOff: "비활성화",
     generateOtp: "OTP 생성",
+    referralSection: "레퍼럴",
+    referralLink: "레퍼럴 링크",
+    copyLink: "링크 복사",
+    copySuccess: "링크가 복사되었습니다!",
   });
 
   const [step, setStep] = useState<"qr" | "verify">("qr");
   const [isModalOpen, setModalOpen] = useState(false);
+  const [copySuccess, setCopySuccess] = useState(false);
 
   useEffect(() => {
     const fetchTranslations = async () => {
@@ -51,6 +58,10 @@ export default function Profile() {
         { key: "otpOn", text: "활성화" },
         { key: "otpOff", text: "비활성화" },
         { key: "generateOtp", text: "OTP 생성" },
+        { key: "referralSection", text: "레퍼럴" },
+        { key: "referralLink", text: "레퍼럴 링크" },
+        { key: "copyLink", text: "링크 복사" },
+        { key: "copySuccess", text: "링크가 복사되었습니다!" },
       ];
 
       try {
@@ -90,6 +101,15 @@ export default function Profile() {
       alert("OTP 인증이 성공적으로 완료되었습니다!");
     } else {
       alert("잘못된 OTP입니다. 다시 시도해주세요.");
+    }
+  };
+
+  const handleCopyReferralLink = () => {
+    if (userData?.username) {
+      const referralLink = `https://bitboost-x.com/register?ref=${userData.username}`;
+      navigator.clipboard.writeText(referralLink);
+      setCopySuccess(true);
+      setTimeout(() => setCopySuccess(false), 2000);
     }
   };
 
@@ -161,6 +181,32 @@ export default function Profile() {
                     </button>
                   )}
                 </p>
+              </div>
+
+              {/* Referral Section */}
+              <div className="mt-6 p-4 border rounded border-cyan-500 bg-gray-800">
+                <h2 className="text-xl font-bold text-cyan-400 mb-4">
+                  {translatedTexts.referralSection}
+                </h2>
+                <p className="mb-4">
+                  <span className="font-bold text-cyan-400">
+                    {translatedTexts.referralLink}:
+                  </span>{" "}
+                  <span className="text-cyan-300">
+                    https://bitboost-x.com/register?ref={userData.username}
+                  </span>
+                </p>
+                <button
+                  className="bg-cyan-500 hover:bg-cyan-400 text-black font-bold py-1 px-4 rounded"
+                  onClick={handleCopyReferralLink}
+                >
+                  {translatedTexts.copyLink}
+                </button>
+                {copySuccess && (
+                  <p className="text-green-400 mt-2">
+                    {translatedTexts.copySuccess}
+                  </p>
+                )}
               </div>
             </div>
           ) : (

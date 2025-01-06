@@ -30,9 +30,9 @@ export default function Login() {
     passwordPlaceholder: "비밀번호",
     loginButton: "로그인",
     loggingIn: "로그인 중...",
-    noAccount: "계정이 없으신가요?",
+    noAccount: "지금 함께하세요",
     registerHere: "회원가입하기",
-    featuredBy: "제공: ",
+    featuredBy: "파트너: ",
   });
 
   useEffect(() => {
@@ -44,9 +44,9 @@ export default function Login() {
           { key: "passwordPlaceholder", text: "비밀번호" },
           { key: "loginButton", text: "로그인" },
           { key: "loggingIn", text: "로그인 중..." },
-          { key: "noAccount", text: "계정이 없으신가요?" },
+          { key: "noAccount", text: "지금 함께하세요" },
           { key: "registerHere", text: "회원가입하기" },
-          { key: "featuredBy", text: "제공: " },
+          { key: "featuredBy", text: "파트너: " },
         ];
 
         const translations = await Promise.all(

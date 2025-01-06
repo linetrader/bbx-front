@@ -4,7 +4,7 @@
 
 import React, { useEffect, useState } from "react";
 import { useRegister } from "@/hooks/useRegister";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation"; // useSearchParams 추가
 import { useTranslationContext } from "@/context/TranslationContext";
 import { fetchTranslation } from "@/utils/TranslateModule/translateCache";
 
@@ -19,6 +19,7 @@ export default function Register() {
   } = useRegister();
 
   const router = useRouter();
+  const searchParams = useSearchParams(); // URL 쿼리 매개변수 읽기
   const { language } = useTranslationContext();
 
   const [translatedTexts, setTranslatedTexts] = useState({
@@ -37,6 +38,12 @@ export default function Register() {
   });
 
   useEffect(() => {
+    // 추천인(ref) 값이 URL에 있으면 formData에 설정
+    const referrer = searchParams.get("ref");
+    if (referrer) {
+      setFormData((prev) => ({ ...prev, referrer }));
+    }
+
     const fetchTranslations = async () => {
       try {
         const keys = [
@@ -73,7 +80,7 @@ export default function Register() {
     };
 
     fetchTranslations();
-  }, [language]);
+  }, [language, searchParams]); // searchParams 추가
 
   const handleChange = (field: string, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -150,7 +157,7 @@ export default function Register() {
           <input
             type="text"
             placeholder={translatedTexts.referrerPlaceholder}
-            value={formData.referrer}
+            value={formData.referrer} // 추천인 필드에 값 자동 설정
             onChange={(e) => handleChange("referrer", e.target.value)}
             className={inputStyles}
           />
