@@ -198,9 +198,9 @@ export function usePackage() {
     // usdtBalance 체크
     fetchUsdtBalance();
 
-    //fetchPackages();
-    //fetchUserPackages();
-    //fetchDefaultContract();
+    fetchPackages();
+    fetchUserPackages();
+    fetchDefaultContract();
   }, []);
 
   return {
