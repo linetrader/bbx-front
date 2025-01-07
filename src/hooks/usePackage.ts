@@ -106,14 +106,14 @@ export function usePackage() {
       //console.error("Error in fetchDepositWallet:", err);
 
       // Ensure err.message exists and is a string before calling `includes`
-      if (err.message && typeof err.message === "string") {
+      if (err && typeof err === "string") {
         // Handle "Wallet not found" case
-        if (err.message.includes("Wallet not found")) {
+        if (err.includes("Wallet not found")) {
           setUsdtBalance(0.0);
           console.log("Wallet not found, user needs to create one.");
         } else {
           // Handle other error messages
-          setError(err.message || "An unexpected error occurred.");
+          setError(err || "An unexpected error occurred.");
         }
       } else {
         // In case `err.message` is not defined, set a generic error message
@@ -195,10 +195,12 @@ export function usePackage() {
   };
 
   useEffect(() => {
-    fetchPackages();
+    // usdtBalance 체크
     fetchUsdtBalance();
-    fetchUserPackages();
-    fetchDefaultContract();
+
+    //fetchPackages();
+    //fetchUserPackages();
+    //fetchDefaultContract();
   }, []);
 
   return {

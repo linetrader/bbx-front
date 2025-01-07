@@ -21,8 +21,8 @@ export default function Header() {
   return (
     <div className="flex justify-between items-center p-2 bg-gray-900 shadow-md text-white relative">
       {/* Logo */}
-      <div className="cursor-pointer">
-        <Image src={Logo} alt="BitBoostX Logo" width={100} height={100} />
+      <div style={{ width: "100px", position: "relative" }}>
+        <Image src={Logo} alt="BitBoostX Logo" />
       </div>
 
       {/* Right Section: Language Selector and Menu */}

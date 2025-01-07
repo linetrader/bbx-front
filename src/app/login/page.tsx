@@ -78,7 +78,9 @@ export default function Login() {
       {/* Main Content */}
       <main className="flex flex-col items-center mt-5">
         {/* Logo Section */}
-        <Image src={Logo} alt="BitBoostX Logo" width={240} height={240} />
+        <div style={{ width: "240px", position: "relative" }}>
+          <Image src={Logo} alt="BitBoostX Logo" />
+        </div>
 
         {/* Login Form */}
         <div className="w-[80%] bg-gray-900/80 p-8 rounded-lg shadow-2xl max-w-md border border-cyan-500 mt-5">
@@ -130,7 +132,9 @@ export default function Login() {
           <h1 className="text-3xl font-bold text-center text-cyan-500 mb-4">
             {translatedTexts.featuredBy}
           </h1>
-          <Image src={Bn} alt="binance" width={240} height={240} />
+          <div>
+            <Image src={Bn} alt="binance" />
+          </div>
         </div>
       </footer>
     </div>

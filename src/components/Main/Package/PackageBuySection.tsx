@@ -32,6 +32,7 @@ export default function PackageBuySection({
     myUsdtBalance: "내 USDT 잔액",
     loading: "로딩 중...",
     buy: "구매",
+    walletNotFound: "지갑을 찾을 수 없습니다. 지갑을 생성하세요.",
   });
 
   useEffect(() => {
@@ -42,6 +43,10 @@ export default function PackageBuySection({
           { key: "myUsdtBalance", text: "내 USDT 잔액" },
           { key: "loading", text: "로딩 중..." },
           { key: "buy", text: "구매" },
+          {
+            key: "walletNotFound",
+            text: "지갑을 찾을 수 없습니다. 지갑을 생성하세요.",
+          },
         ];
 
         const translations = await Promise.all(
@@ -83,10 +88,16 @@ export default function PackageBuySection({
         <div className="text-center text-gray-400">
           {translatedTexts.loading}
         </div>
-      ) : error && error !== "Wallet not found." ? (
-        <div className="bg-red-600/70 text-white border border-red-500 px-4 py-3 rounded mb-6 text-center">
-          {error}
-        </div>
+      ) : error ? (
+        error === "Wallet not found" ? (
+          <div className="px-4 py-3 rounded mb-4 text-sm bg-yellow-100 text-yellow-700 border-yellow-600">
+            {translatedTexts.walletNotFound}
+          </div>
+        ) : (
+          <div className="bg-red-600/70 text-white border border-red-500 px-4 py-3 rounded mb-6 text-center">
+            {error}
+          </div>
+        )
       ) : (
         packages.map((pkg) => (
           <div
