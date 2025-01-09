@@ -36,7 +36,56 @@ export default function Login() {
   });
 
   useEffect(() => {
+    // 리디렉션 방지 플래그
+    const redirectFlag = sessionStorage.getItem("redirected");
+
+    if (redirectFlag) return;
+
+    // 모바일 환경 감지
+    const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+
+    // 카카오톡 브라우저 확인
+    //alert(navigator.userAgent);
+    const isKakaotalk = navigator.userAgent.includes("KAKAOTALK");
+    //alert(isKakaotalk);
+
+    // 텔레그램 브라우저 확인
+    const isTelegramBrowser =
+      navigator.userAgent.includes("Telegram") ||
+      (navigator.userAgent.includes("Linux") &&
+        navigator.userAgent.includes("Android"));
+
+    if ((isMobile && isKakaotalk) || (isMobile && isTelegramBrowser)) {
+      const currentUrl = window.location.href;
+
+      // Android의 경우 Chrome 앱 실행
+      if (/Android/i.test(navigator.userAgent)) {
+        const intentUrl = `intent://${currentUrl.replace(
+          /^https?:\/\//,
+          ""
+        )}#Intent;scheme=https;package=com.android.chrome;end`;
+        window.location.href = intentUrl;
+
+        // 리디렉션 플래그 설정
+        sessionStorage.setItem("redirected", "true");
+      }
+
+      // iOS의 경우 Safari로 리디렉션
+      if (/iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+        const safariUrl = `https://${currentUrl.replace(/^https?:\/\//, "")}`;
+        window.location.href = safariUrl;
+
+        // 리디렉션 플래그 설정
+        sessionStorage.setItem("redirected", "true");
+      }
+    }
+  }, []);
+
+  useEffect(() => {
     const fetchTranslations = async () => {
+      //console.log(navigator.userAgent);
+      //logger.debug("디버깅 메시지 : ", navigator.userAgent);
+
       try {
         const keys = [
           { key: "loginTitle", text: "로그인" },

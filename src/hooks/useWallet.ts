@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 import { useGraphQL } from "@/utils/graphqlApi";
-import { Socket } from "socket.io-client";
-import { getSocket, disconnectSocket } from "@/utils/socket";
+// import { Socket } from "socket.io-client";
+// import { getSocket, disconnectSocket } from "@/utils/socket";
 
 interface DepositNotification {
   walletAddress: string;
@@ -28,26 +28,19 @@ interface WithdrawalRequest {
   createdAt: string;
 }
 
-type TokenType = "usdt" | "doge" | "btc";
+//type TokenType = "usdt" | "doge" | "btc";
 
 export function useWallet() {
   const { graphqlRequest, loading, error, setError } = useGraphQL();
   const [walletData, setWalletData] = useState<WalletData | null>(null);
   const [miningData, setminingData] = useState<MiningData[] | null>([]);
-  // const [withdrawalAmounts, setWithdrawalAmounts] = useState<
-  //   Record<TokenType, number>
-  // >({
-  //   usdt: 0.0,
-  //   doge: 0.0,
-  //   btc: 0.0,
-  // });
   const [pendingWithdrawals, setPendingWithdrawals] = useState<
     WithdrawalRequest[]
   >([]);
   //const [selectedToken, setSelectedToken] = useState<TokenType | null>(null);
 
-  const [deposits, setDeposits] = useState<DepositNotification[]>([]);
-  const [socket, setSocket] = useState<Socket | null>(null);
+  //const [deposits, setDeposits] = useState<DepositNotification[]>([]);
+  //const [socket, setSocket] = useState<Socket | null>(null);
 
   const fetchDepositWallet = async () => {
     try {
@@ -131,6 +124,7 @@ export function useWallet() {
         }
       `);
       //console.log("Response received for getPendingWithdrawals:", data);
+
       if (data?.getPendingWithdrawals) {
         setPendingWithdrawals(data.getPendingWithdrawals);
       } else {
@@ -155,6 +149,7 @@ export function useWallet() {
         }
       `);
       console.log("Response received for createWallet:", data);
+
       if (data?.createWallet) {
         setWalletData(data.createWallet);
       } else {
@@ -165,22 +160,6 @@ export function useWallet() {
       setError(err.message || "An unexpected error occurred.");
     }
   };
-
-  // const handleInputChange = (token: TokenType, value: number) => {
-  //   setWithdrawalAmounts((prev) => ({
-  //     ...prev,
-  //     [token]: value,
-  //   }));
-  // };
-
-  // const handleWithdrawClick = (token: TokenType) => {
-  //   const amount = withdrawalAmounts[token];
-  //   if (amount <= 0) {
-  //     setError("Please enter a valid amount to withdraw.");
-  //     return;
-  //   }
-  //   setSelectedToken(token);
-  // };
 
   const handleConfirmWithdraw = async (
     otpValue: string,
