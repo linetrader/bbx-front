@@ -11,6 +11,7 @@ export function useLogin() {
   const [password, setPassword] = useState("");
 
   const handleLogin = async () => {
+    console.log("handleLogin");
     if (!email || !password) {
       resetError();
       setError("Email and password are required.");
@@ -35,9 +36,9 @@ export function useLogin() {
         true // skipAuthCheck 설정
       );
 
-      // if (data) {
-      //   console.log(data);
-      // }
+      if (data) {
+        console.log(data);
+      }
 
       login(data.login);
     } catch (err: any) {

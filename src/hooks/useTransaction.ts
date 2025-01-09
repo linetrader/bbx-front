@@ -8,6 +8,8 @@ export function useTransaction() {
   const [purchases, setPurchases] = useState<PurchaseRecord[] | null>(null);
 
   const fetchTransactionData = async () => {
+    setError(null); // 이전 에러 상태 초기화
+    setTransactions(null);
     //console.log("fetchTransactionData");
     try {
       const { data } = await graphqlRequest(
@@ -29,7 +31,9 @@ export function useTransaction() {
   };
 
   const fetchPurchaseRecords = async (status = "approved") => {
+    console.log("fetchPurchaseRecords");
     setError(null); // 이전 에러 상태 초기화
+    setPurchases(null);
     try {
       const { data } = await graphqlRequest(
         `query GetPackageRecords($status: String!) {
@@ -46,7 +50,14 @@ export function useTransaction() {
       console.log(data.getPackageRecords);
       setPurchases(data.getPackageRecords);
     } catch (err: any) {
-      setError(err.message || "An unexpected error occurred.");
+      console.log("fetchPurchaseRecords - err : ", err);
+      // `Packages not found.` 에러일 경우
+      if (err === "Packages not found.") {
+        setError(null); // 에러 상태를 null로 설정
+      } else {
+        // 다른 에러 메시지는 그대로 설정
+        setError(err || "An unexpected error occurred.");
+      }
       setPurchases([]);
     }
   };
