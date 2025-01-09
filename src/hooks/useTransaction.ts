@@ -28,24 +28,26 @@ export function useTransaction() {
     }
   };
 
-  const fetchPurchaseRecords = async () => {
-    //console.log("fetchPurchaseRecords");
+  const fetchPurchaseRecords = async (status = "approved") => {
+    setError(null); // 이전 에러 상태 초기화
     try {
       const { data } = await graphqlRequest(
-        `query {
-          getPackageRecords {
+        `query GetPackageRecords($status: String!) {
+          getPackageRecords(status: $status) {
             packageName
             quantity
             totalPrice
             createdAt
           }
-        }`
+        }`,
+        { status } // GraphQL 쿼리 변수로 status 전달
       );
-      //console.log(data.getPackageRecords);
+
+      console.log(data.getPackageRecords);
       setPurchases(data.getPackageRecords);
     } catch (err: any) {
       setError(err.message || "An unexpected error occurred.");
-      setPurchases(null);
+      setPurchases([]);
     }
   };
 
