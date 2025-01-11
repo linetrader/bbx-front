@@ -9,7 +9,7 @@ import Profile from "@/components/Main/Profile/Profile";
 import Dashboard from "@/components/Main/Dashboard/Dashboard";
 
 const contentStyle =
-  "h-full overflow-y-auto scrollbar-hide max-h-[calc(100vh-160px)] -mt-8";
+  "h-full overflow-y-auto scrollbar-hide max-h-[calc(100vh-160px)] -mt-4";
 
 export default function MainContent({
   activeScreen,
