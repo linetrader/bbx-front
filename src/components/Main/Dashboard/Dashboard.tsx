@@ -93,7 +93,7 @@ export default function Dashboard() {
 
   return (
     <div className="flex flex-col h-[70vh]">
-      <main className="flex-grow pt-10">
+      <main className="flex-grow flex items-start justify-center pt-10">
         <div className="w-[90%] max-w-xl mx-auto bg-gray-900/80 p-8 rounded-lg shadow-2xl border border-cyan-500">
           <h2 className="text-4xl font-bold text-center text-cyan-400 mb-8 tracking-wide">
             {translatedTexts.dashboardTitle}
@@ -133,10 +133,16 @@ export default function Dashboard() {
                     </div>
                     {data.packageType === "DOGE" && (
                       <button
-                        onClick={() => setShowChart(true)} // 차트 섹션 표시
-                        className="text-sm px-3 py-1 bg-cyan-500 text-white rounded hover:bg-cyan-600"
+                        onClick={() => setShowChart((prev) => !prev)} // 토글 기능 추가
+                        className="text-sm px-3 py-1 bg-cyan-500 text-white rounded hover:bg-cyan-600 text-center leading-tight"
                       >
-                        {translatedTexts.viewChartButton}
+                        {translatedTexts.viewChartButton
+                          .split(" ")
+                          .map((line, index) => (
+                            <span key={index} className="block">
+                              {line}
+                            </span>
+                          ))}
                       </button>
                     )}
                   </div>

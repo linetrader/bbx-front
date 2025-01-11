@@ -118,7 +118,7 @@ export default function Profile() {
 
   return (
     <div className="flex flex-col h-[70vh]">
-      <main className="flex-grow flex items-start justify-center pt-24">
+      <main className="flex-grow flex items-start justify-center pt-10">
         <div className={containerStyles}>
           <h1 className="text-4xl font-bold text-center text-cyan-400 mb-6 tracking-wide">
             {translatedTexts.profileTitle}
