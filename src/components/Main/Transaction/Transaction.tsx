@@ -1,3 +1,5 @@
+// src/components/Main/Transaction/Transaction.tsx
+
 "use client";
 
 import React, { useEffect, useState } from "react";
@@ -9,8 +11,9 @@ import TransactionsSection from "./TransactionsSection";
 import PurchasesSection from "./PurchasesSection";
 
 export default function Transaction() {
-  const { transactions, purchases, loading, error } = useTransaction();
-  const [selectedType, setSelectedType] = useState<string>("deposit");
+  const [selectedType, setSelectedType] = useState<string>("minings");
+  const { transactions, purchases, loading, error } =
+    useTransaction(selectedType);
   const { language } = useTranslationContext();
 
   const [translatedTexts, setTranslatedTexts] = useState({

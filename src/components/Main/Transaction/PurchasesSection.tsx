@@ -1,3 +1,5 @@
+// src/components/Main/Transaction/PurchasesSection.tsx
+
 "use client";
 
 import React, { useEffect, useState } from "react";

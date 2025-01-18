@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useGraphQL } from "@/utils/graphqlApi";
 import { PurchaseRecord, Transaction } from "./types/common";
 
-export function useTransaction() {
+export function useTransaction(selectedType: string) {
   const { graphqlRequest, loading, error, setError } = useGraphQL();
   const [transactions, setTransactions] = useState<Transaction[] | null>(null);
   const [purchases, setPurchases] = useState<PurchaseRecord[] | null>(null);
@@ -31,7 +31,7 @@ export function useTransaction() {
   };
 
   const fetchPurchaseRecords = async (status = "approved") => {
-    console.log("fetchPurchaseRecords");
+    //console.log("fetchPurchaseRecords");
     setError(null); // 이전 에러 상태 초기화
     setPurchases(null);
     try {
@@ -47,10 +47,10 @@ export function useTransaction() {
         { status } // GraphQL 쿼리 변수로 status 전달
       );
 
-      console.log(data.getPackageRecords);
+      //console.log(data.getPackageRecords);
       setPurchases(data.getPackageRecords);
     } catch (err: any) {
-      console.log("fetchPurchaseRecords - err : ", err);
+      //console.log("fetchPurchaseRecords - err : ", err);
       // `Packages not found.` 에러일 경우
       if (err === "Packages not found.") {
         setError(null); // 에러 상태를 null로 설정
@@ -63,9 +63,12 @@ export function useTransaction() {
   };
 
   useEffect(() => {
-    fetchTransactionData();
-    fetchPurchaseRecords();
-  }, []);
+    if (selectedType === "package_purchase") {
+      fetchPurchaseRecords();
+    } else {
+      fetchTransactionData();
+    }
+  }, [selectedType]);
 
   return {
     transactions,

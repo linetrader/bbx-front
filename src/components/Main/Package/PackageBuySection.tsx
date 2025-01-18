@@ -2,6 +2,7 @@
 
 "use client";
 
+import { toast } from "react-toastify";
 import React, { useEffect, useState } from "react";
 import { useTranslationContext } from "@/context/TranslationContext";
 import { fetchTranslation } from "@/utils/TranslateModule/translateCache";
@@ -122,7 +123,13 @@ export default function PackageBuySection({
               />
               <button
                 className={buttonStyles}
-                onClick={() => handleContractOpen(pkg)}
+                onClick={() => {
+                  if (!quantities[pkg.id] || quantities[pkg.id] <= 0) {
+                    toast.error("수량을 입력하세요.");
+                    return;
+                  }
+                  handleContractOpen(pkg); // 수량이 0보다 큰 경우에만 동작
+                }}
               >
                 {translatedTexts.buy}
               </button>

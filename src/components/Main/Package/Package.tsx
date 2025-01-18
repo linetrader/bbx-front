@@ -2,7 +2,7 @@
 
 "use client";
 
-import React from "react";
+import React, { useEffect } from "react";
 import { usePackage } from "../../../hooks/usePackage";
 import { useTransaction } from "../../../hooks/useTransaction";
 import PackageBuySection from "./PackageBuySection";
@@ -31,10 +31,10 @@ export default function Package() {
     loading: transactionLoading,
     error: transactionError,
     fetchPurchaseRecords,
-  } = useTransaction();
+  } = useTransaction("package_purchase");
 
   // Fetch pending purchases on component mount
-  React.useEffect(() => {
+  useEffect(() => {
     fetchPurchaseRecords("pending");
   }, []);
 

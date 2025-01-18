@@ -1,6 +1,8 @@
 // src/components/Main/wallet/WithdrawSection/ts
 "use client";
 
+import { toast } from "react-toastify";
+//import "react-toastify/dist/ReactToastify.css";
 import React, { useEffect, useState } from "react";
 import OtpModal from "./OtpModal";
 import { useTranslationContext } from "@/context/TranslationContext";
@@ -293,7 +295,16 @@ export default function WithdrawSection({
               className="w-1/2 px-4 py-2 border rounded-l focus:outline-none focus:ring-2 focus:ring-cyan-400 bg-gray-800 text-white placeholder-gray-400"
             />
             <button
-              onClick={() => handleWithdrawClick(token)}
+              onClick={() => {
+                if (
+                  !withdrawalAmounts[token] ||
+                  withdrawalAmounts[token] <= 0
+                ) {
+                  toast.error("수량을 입력하세요.");
+                  return;
+                }
+                handleWithdrawClick(token);
+              }}
               disabled={loading}
               className={`px-4 py-2 rounded font-semibold shadow-md transition-colors text-white text-sm ${
                 loading
