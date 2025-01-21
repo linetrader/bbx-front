@@ -27,7 +27,7 @@ export default function Dashboard() {
   const [showChart, setShowChart] = useState(false); // 차트 표시 여부 상태
 
   useEffect(() => {
-    const fetchTranslations = async () => {
+    const fetchData = async () => {
       try {
         const keys = [
           { key: "dashboardTitle", text: "대시보드" },
@@ -41,9 +41,12 @@ export default function Dashboard() {
           { key: "viewChartButton", text: "차트 보기" },
         ];
 
-        const translations = await Promise.all(
-          keys.map((item) => fetchTranslation(item.text, language))
-        );
+        const [translations, _] = await Promise.all([
+          Promise.all(
+            keys.map((item) => fetchTranslation(item.text, language))
+          ),
+          fetchMiningData(language),
+        ]);
 
         const updatedTranslations = keys.reduce(
           (acc, item, index) => {
@@ -55,12 +58,11 @@ export default function Dashboard() {
 
         setTranslatedTexts(updatedTranslations);
       } catch (error) {
-        console.error("[ERROR] Failed to fetch translations:", error);
+        console.error("[ERROR] Failed to fetch data:", error);
       }
     };
 
-    fetchTranslations();
-    fetchMiningData(language);
+    fetchData();
   }, [language]);
 
   useEffect(() => {

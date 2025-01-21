@@ -1,40 +1,18 @@
-// src/hooks/usePackage.ts
-
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useGraphQL } from "../utils/graphqlApi";
-
-interface Package {
-  id: string;
-  name: string;
-  price: string;
-}
-
-interface UserPackage {
-  packageType: string;
-  quantity: number;
-}
-
-interface DefaultContractTemplate {
-  content: string[]; // content를 배열로 정의
-  date: string;
-  companyName: string;
-  companyAddress: string;
-  businessNumber: string;
-  representative: string;
-}
+import { DefaultContractTemplate, Package, UserPackage } from "@/types/Package";
 
 export function usePackage() {
   const { graphqlRequest, loading, error, setError } = useGraphQL();
-  const [packages, setPackages] = useState<Package[]>([]);
-  const [quantities, setQuantities] = useState<{ [key: string]: number }>({});
+  const [availablePackages, setAvailablePackages] = useState<Package[]>([]);
+  const [packageQuantities, setPackageQuantities] = useState<{
+    [key: string]: number;
+  }>({});
   const [usdtBalance, setUsdtBalance] = useState(0.0);
   const [userPackages, setUserPackages] = useState<UserPackage[]>([]);
-  const [showContract, setShowContract] = useState(false);
-  const [selectedPackage, setSelectedPackage] = useState<Package | null>(null);
   const [defaultContract, setDefaultContract] =
     useState<DefaultContractTemplate | null>(null);
 
-  // Fetch default contract
   const fetchDefaultContract = async () => {
     try {
       const { data } = await graphqlRequest(`
@@ -57,7 +35,7 @@ export function usePackage() {
     }
   };
 
-  const fetchPackages = async () => {
+  const fetchAvailablePackages = async () => {
     try {
       const { data } = await graphqlRequest(`
         query {
@@ -69,7 +47,7 @@ export function usePackage() {
         }
       `);
 
-      setPackages(data.getPackages);
+      setAvailablePackages(data.getPackages);
       const initialQuantities = data.getPackages.reduce(
         (acc: any, pkg: Package) => {
           acc[pkg.id] = 0;
@@ -77,7 +55,7 @@ export function usePackage() {
         },
         {}
       );
-      setQuantities(initialQuantities);
+      setPackageQuantities(initialQuantities);
     } catch (err: any) {
       console.error("Error fetching packages:", err.message);
       setError(err.message || "An unexpected error occurred.");
@@ -94,30 +72,16 @@ export function usePackage() {
         }
       `);
 
-      // Ensure that data exists and handle the response accordingly
-      if (data?.getWalletInfo) {
-        //console.log("Wallet Info Success");
-        setUsdtBalance(data.getWalletInfo.usdtBalance);
-      } else {
-        setUsdtBalance(0.0); // Wallet이 없으면 null 설정
+      setUsdtBalance(data?.getWalletInfo?.usdtBalance || 0.0);
+      if (!data?.getWalletInfo) {
         console.log("Wallet not found, user needs to create one.");
       }
     } catch (err: any) {
-      //console.error("Error in fetchDepositWallet:", err);
-
-      // Ensure err.message exists and is a string before calling `includes`
-      if (err && typeof err === "string") {
-        // Handle "Wallet not found" case
-        if (err.includes("Wallet not found")) {
-          setUsdtBalance(0.0);
-          console.log("Wallet not found, user needs to create one.");
-        } else {
-          // Handle other error messages
-          setError(err || "An unexpected error occurred.");
-        }
+      if (err && typeof err === "string" && err.includes("Wallet not found")) {
+        setUsdtBalance(0.0);
+        console.log("Wallet not found, user needs to create one.");
       } else {
-        // In case `err.message` is not defined, set a generic error message
-        setError("An unexpected error occurred. endpoint");
+        setError(err.message || "An unexpected error occurred.");
       }
     }
   };
@@ -142,14 +106,14 @@ export function usePackage() {
     }
   };
 
-  const handlePurchase = async (
+  const handlePackagePurchase = async (
     packageId: string,
     customerName: string,
     customerPhone: string,
     customerAddress: string
   ) => {
     try {
-      const quantity = quantities[packageId];
+      const quantity = packageQuantities[packageId];
       if (quantity <= 0) {
         setError("Quantity must be greater than zero.");
         return;
@@ -184,38 +148,19 @@ export function usePackage() {
     }
   };
 
-  const handleContractOpen = (pkg: Package) => {
-    setSelectedPackage(pkg);
-    setShowContract(true);
-  };
-
-  const handleContractClose = () => {
-    setSelectedPackage(null);
-    setShowContract(false);
-  };
-
-  useEffect(() => {
-    // usdtBalance 체크
-    fetchUsdtBalance();
-
-    fetchPackages();
-    fetchUserPackages();
-    fetchDefaultContract();
-  }, []);
-
   return {
     defaultContract,
-    packages,
-    quantities,
+    availablePackages,
+    packageQuantities,
     usdtBalance,
     userPackages,
     loading,
     error,
-    setQuantities,
-    handlePurchase,
-    showContract,
-    selectedPackage,
-    handleContractOpen,
-    handleContractClose,
+    setPackageQuantities,
+    handlePackagePurchase,
+    fetchUsdtBalance,
+    fetchAvailablePackages,
+    fetchUserPackages,
+    fetchDefaultContract,
   };
 }

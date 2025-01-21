@@ -1,21 +1,14 @@
-// src/components/ContractInfo.tsx
-
 "use client";
 
 import React, { useEffect, useState } from "react";
 import { useTranslationContext } from "@/context/TranslationContext";
 import { fetchTranslation } from "@/utils/TranslateModule/translateCache";
-
-interface ContractInfoProps {
-  contractContent: string[];
-  showFullContract: boolean;
-  setShowFullContract: React.Dispatch<React.SetStateAction<boolean>>;
-}
+import { ContractInfoProps } from "@/types/Package";
 
 const ContractInfo: React.FC<ContractInfoProps> = ({
   contractContent,
-  showFullContract,
-  setShowFullContract,
+  isFullContractVisible,
+  setIsFullContractVisible,
 }) => {
   const { language } = useTranslationContext();
 
@@ -33,7 +26,7 @@ const ContractInfo: React.FC<ContractInfoProps> = ({
   const maxLength = 150;
   const beforeLength = tempContract.length;
 
-  const displayedContent = showFullContract
+  const displayedContent = isFullContractVisible
     ? tempContract
     : tempContract.slice(0, maxLength);
 
@@ -73,10 +66,10 @@ const ContractInfo: React.FC<ContractInfoProps> = ({
         {translatedTexts.translatedContent}
         {beforeLength > maxLength && (
           <button
-            onClick={() => setShowFullContract(!showFullContract)}
+            onClick={() => setIsFullContractVisible(!isFullContractVisible)}
             className="text-cyan-500 ml-2"
           >
-            {showFullContract
+            {isFullContractVisible
               ? translatedTexts.showLess
               : translatedTexts.showMore}
           </button>

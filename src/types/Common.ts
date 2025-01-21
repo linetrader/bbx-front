@@ -2,7 +2,7 @@
 
 export interface Transaction {
   type: string;
-  amount: string;
+  amount: number;
   token: string;
   transactionHash: string;
   createdAt: string;

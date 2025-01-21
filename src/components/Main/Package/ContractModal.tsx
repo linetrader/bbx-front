@@ -1,5 +1,3 @@
-// src/components/ContractModal.tsx
-
 "use client";
 
 import React, { useEffect, useState } from "react";
@@ -27,7 +25,7 @@ export default function ContractModal({
 }) {
   const { defaultContract } = usePackage();
   const { customerInfo, setCustomerInfo } = useCustomerInfo();
-  const [showFullContract, setShowFullContract] = useState(false);
+  const [isFullContractVisible, setIsFullContractVisible] = useState(false);
   const { language } = useTranslationContext();
 
   const [translatedTexts, setTranslatedTexts] = useState({
@@ -119,16 +117,16 @@ export default function ContractModal({
   return (
     <div className="flex flex-col h-[70vh]">
       <main className="flex-grow bg-gray-900 p-6 rounded-lg pt-10">
-        {showFullContract && defaultContract && (
+        {isFullContractVisible && defaultContract && (
           <div className="mt-0">
             <FullContractModal
               contractContents={defaultContract.content}
-              closeModal={() => setShowFullContract(false)}
+              closeModal={() => setIsFullContractVisible(false)}
             />
           </div>
         )}
 
-        {!showFullContract && defaultContract && (
+        {!isFullContractVisible && defaultContract && (
           <div className="mt-0">
             <h2 className="text-2xl font-bold text-cyan-400 mb-4 text-center">
               {translatedTexts.confirmPurchaseTitle}
@@ -137,8 +135,8 @@ export default function ContractModal({
             {defaultContract ? (
               <ContractInfo
                 contractContent={defaultContract.content}
-                showFullContract={showFullContract}
-                setShowFullContract={setShowFullContract}
+                isFullContractVisible={isFullContractVisible}
+                setIsFullContractVisible={setIsFullContractVisible}
               />
             ) : (
               <p className="text-gray-300 mb-4 text-center">

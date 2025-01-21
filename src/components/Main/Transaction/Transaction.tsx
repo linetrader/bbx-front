@@ -1,5 +1,3 @@
-// src/components/Main/Transaction/Transaction.tsx
-
 "use client";
 
 import React, { useEffect, useState } from "react";
@@ -12,7 +10,7 @@ import PurchasesSection from "./PurchasesSection";
 
 export default function Transaction() {
   const [selectedType, setSelectedType] = useState<string>("minings");
-  const { transactions, purchases, loading, error } =
+  const { transactions, purchases, miningLogs, loading, error } =
     useTransaction(selectedType);
   const { language } = useTranslationContext();
 
@@ -54,12 +52,6 @@ export default function Transaction() {
     fetchTranslations();
   }, [language]);
 
-  // 필터링된 트랜잭션
-  const filteredTransactions = transactions?.filter(
-    (t) => t.type === selectedType
-  );
-
-  // `package_purchase` 항목에만 표시되는 PurchaseRecord
   const filteredPurchases =
     selectedType === "package_purchase" ? purchases : [];
 
@@ -85,13 +77,19 @@ export default function Transaction() {
                 selectedType={selectedType}
                 setSelectedType={setSelectedType}
               />
-              <TransactionsSection transactions={filteredTransactions || []} />
+              <TransactionsSection
+                transactions={transactions || []}
+                miningLogs={miningLogs || []}
+                selectedType={selectedType}
+              />
               <PurchasesSection purchases={filteredPurchases || []} />
-              {!filteredTransactions?.length && !filteredPurchases?.length && (
-                <div className="text-center text-gray-500">
-                  {translatedTexts.noDataMessage}
-                </div>
-              )}
+              {!transactions?.length &&
+                !filteredPurchases?.length &&
+                !miningLogs?.length && (
+                  <div className="text-center text-gray-500">
+                    {translatedTexts.noDataMessage}
+                  </div>
+                )}
             </div>
           )}
         </div>

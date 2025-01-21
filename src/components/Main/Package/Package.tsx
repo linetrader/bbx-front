@@ -1,29 +1,26 @@
-// src/components/Package.tsx
-
 "use client";
 
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { usePackage } from "../../../hooks/usePackage";
 import { useTransaction } from "../../../hooks/useTransaction";
-import PackageBuySection from "./PackageBuySection";
-import MyPurchasesSection from "./MyPurchasesSection";
+import { PackageBuy } from "./PackageBuy";
 import ContractModal from "./ContractModal";
-import PendingPurchasesSection from "./PendingPurchasesSection"; // Import 추가
+import type { Package } from "@/types/Package";
 
 export default function Package() {
   const {
-    packages,
-    quantities,
+    availablePackages,
+    packageQuantities,
     usdtBalance,
     userPackages,
     loading: packageLoading,
     error: packageError,
-    setQuantities,
-    handlePurchase,
-    handleContractOpen,
-    handleContractClose,
-    showContract,
-    selectedPackage,
+    setPackageQuantities,
+    handlePackagePurchase,
+    fetchUsdtBalance,
+    fetchAvailablePackages,
+    fetchUserPackages,
+    fetchDefaultContract,
   } = usePackage();
 
   const {
@@ -33,43 +30,54 @@ export default function Package() {
     fetchPurchaseRecords,
   } = useTransaction("package_purchase");
 
-  // Fetch pending purchases on component mount
+  const [isContractVisible, setIsContractVisible] = useState(false);
+  const [selectedPackage, setSelectedPackage] = useState<Package | null>(null);
+
+  const openContractModal = (pkg: Package) => {
+    setSelectedPackage(pkg);
+    setIsContractVisible(true);
+  };
+
+  const closeContractModal = () => {
+    setSelectedPackage(null);
+    setIsContractVisible(false);
+  };
+
   useEffect(() => {
+    fetchUsdtBalance();
+    fetchAvailablePackages();
+    fetchUserPackages();
+    fetchDefaultContract();
     fetchPurchaseRecords("pending");
   }, []);
 
   return (
     <div className="flex flex-col h-[70vh]">
       <main className="flex-grow pt-10">
-        {showContract && selectedPackage && (
+        {isContractVisible && selectedPackage && (
           <div className="mt-0">
             <ContractModal
               selectedPackage={selectedPackage}
-              handleContractClose={handleContractClose}
-              handlePurchase={handlePurchase}
+              handleContractClose={closeContractModal}
+              handlePurchase={handlePackagePurchase}
             />
           </div>
         )}
 
-        {!showContract && !selectedPackage && (
+        {!isContractVisible && !selectedPackage && (
           <div className="w-[90%] max-w-xl mx-auto bg-gray-900/80 p-8 rounded-lg shadow-2xl border border-cyan-500">
-            <PackageBuySection
-              packages={packages}
-              quantities={quantities}
-              setQuantities={setQuantities}
-              handleContractOpen={handleContractOpen}
+            <PackageBuy
+              availablePackages={availablePackages}
+              packageQuantities={packageQuantities}
+              setPackageQuantities={setPackageQuantities}
+              openContractModal={openContractModal}
               usdtBalance={usdtBalance}
               loading={packageLoading}
               error={packageError}
-            />
-            <MyPurchasesSection
               userPackages={userPackages}
-              error={packageError}
-            />
-            <PendingPurchasesSection
               pendingPurchases={pendingPurchases}
-              loading={transactionLoading}
-              error={transactionError}
+              transactionLoading={transactionLoading}
+              transactionError={transactionError}
             />
           </div>
         )}

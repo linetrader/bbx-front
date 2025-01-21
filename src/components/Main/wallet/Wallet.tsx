@@ -39,8 +39,6 @@ export default function Wallet() {
   });
 
   const handleSaveWithdrawAddress = async (address: string, otp: string) => {
-    //console.log("handleSaveWithdrawAddress - address", address);
-    //console.log("handleSaveWithdrawAddress - otp", otp);
     await saveWithdrawAddress(address, otp);
     return true;
   };

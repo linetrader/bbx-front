@@ -1,19 +1,9 @@
-// src/components/CustomerInfoForm.tsx
 "use client";
 
 import React, { useEffect, useState } from "react";
 import { useTranslationContext } from "@/context/TranslationContext";
 import { fetchTranslation } from "@/utils/TranslateModule/translateCache";
-
-interface CustomerInfoProps {
-  customerInfo: {
-    name: string;
-    phone: string;
-    address: string;
-    agreed: boolean;
-  };
-  setCustomerInfo: React.Dispatch<React.SetStateAction<any>>;
-}
+import { CustomerInfoProps } from "@/types/Package";
 
 const CustomerInfoForm: React.FC<CustomerInfoProps> = ({
   customerInfo,

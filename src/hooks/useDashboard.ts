@@ -1,24 +1,7 @@
 // src/hooks/useDashboard.ts
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useGraphQL } from "@/utils/graphqlApi";
-
-interface MiningData {
-  packageType: string; // BTC or DOGE
-  miningBalance: number;
-  totalPrice: number;
-}
-
-interface ReferralReward {
-  packageType: string;
-  referralBalance: number;
-}
-
-interface CoinPrice {
-  coinName: string; // BTC or DOGE
-  language: string;
-  price: number;
-}
 
 export function useDashboard() {
   const { graphqlRequest, loading, error, setError, resetError } = useGraphQL();
@@ -66,11 +49,9 @@ export function useDashboard() {
         `
       );
 
-      // 각 코인의 데이터를 처리
-      const miningData: MiningData[] = await Promise.all(
+      const coinPrices = await Promise.all(
         userMiningData.getUserMiningData.map(
-          async (item: { packageType: string; miningBalance: number }) => {
-            // 코인 가격 조회
+          async (item: { packageType: string }) => {
             const { data } = await graphqlRequest(
               `
                 query ($coinName: String!, $language: String!) {
@@ -79,21 +60,27 @@ export function useDashboard() {
                   }
                 }
               `,
-              { coinName: item.packageType, language } // 코인 이름과 언어 전달
+              { coinName: item.packageType, language }
             );
-
-            const price = data.getCoinPrice.price;
-
-            // MiningData 구성
             return {
               packageType: item.packageType,
-              miningBalance: parseFloat(item.miningBalance.toFixed(6)),
-              totalPrice: parseFloat(
-                (item.miningBalance * price).toFixed(6) // totalPrice = miningBalance * price
-              ),
+              price: data.getCoinPrice.price,
             };
           }
         )
+      );
+
+      const miningData: MiningData[] = userMiningData.getUserMiningData.map(
+        (item: { packageType: string; miningBalance: number }) => {
+          const coinPrice =
+            coinPrices.find((price) => price.packageType === item.packageType)
+              ?.price || 0;
+          return {
+            packageType: item.packageType,
+            miningBalance: parseFloat(item.miningBalance.toFixed(6)),
+            totalPrice: parseFloat((item.miningBalance * coinPrice).toFixed(6)),
+          };
+        }
       );
 
       setMiningData(miningData);

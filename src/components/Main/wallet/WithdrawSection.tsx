@@ -1,44 +1,10 @@
-// src/components/Main/wallet/WithdrawSection/ts
 "use client";
 
 import { toast } from "react-toastify";
-//import "react-toastify/dist/ReactToastify.css";
 import React, { useEffect, useState } from "react";
 import OtpModal from "./OtpModal";
 import { useTranslationContext } from "@/context/TranslationContext";
 import { fetchTranslation } from "@/utils/TranslateModule/translateCache";
-
-type TokenType = "USDT" | "DOGE" | "BTC";
-
-interface WalletData {
-  address: string;
-  whithdrawAddress: string;
-  usdtBalance: string;
-}
-
-interface MiningData {
-  packageType: string; // DOGE, BTC와 같은 패키지 타입
-  miningBalance: string; // 채굴 잔액
-}
-
-interface PendingWithdrawal {
-  currency: string; // 토큰 이름 (예: "USDT")
-  amount: string; // 출금 금액
-  status: string; // 출금 상태 (예: "PENDING")
-}
-
-interface WithdrawSectionProps {
-  loading: boolean;
-  walletData: WalletData | null;
-  miningData: MiningData[] | null;
-  pendingWithdrawals: PendingWithdrawal[];
-  handleSaveWithdrawAddress: (address: string, otp: string) => Promise<boolean>;
-  handleConfirmWithdraw: (
-    otpValue: string,
-    selectedToken: string,
-    amount: number
-  ) => Promise<boolean>;
-}
 
 export default function WithdrawSection({
   loading,
@@ -72,7 +38,7 @@ export default function WithdrawSection({
   const [isOtpModalOpen, setOtpModalOpen] = useState(false);
   const [otpMode, setOtpMode] = useState<"SAVE_ADDRESS" | "WITHDRAW" | null>(
     null
-  ); // OTP 동작 모드
+  );
   const [selectedToken, setSelectedToken] = useState<TokenType | null>(null);
   const [withdrawalAmounts, setWithdrawalAmounts] = useState<{
     [key in TokenType]: number;
@@ -86,11 +52,8 @@ export default function WithdrawSection({
   );
 
   useEffect(() => {
-    //setWithdrawAddress(walletData?.whithdrawAddress || "");
-    console.log("useEffect - walletData", walletData);
     if (walletData) {
-      console.log("useEffect - whithdrawAddress", walletData.whithdrawAddress);
-      //setWithdrawAddress(walletData.whithdrawAddress);
+      setWithdrawAddress(walletData.whithdrawAddress);
     }
   }, [walletData]);
 
@@ -197,7 +160,7 @@ export default function WithdrawSection({
     if (!miningData) return "0.000000";
     const balanceData = miningData.find((data) => data.packageType === type);
     return balanceData?.miningBalance
-      ? parseFloat(balanceData.miningBalance).toFixed(6)
+      ? parseFloat(balanceData.miningBalance.toString()).toFixed(6)
       : "0.000000";
   };
 
@@ -206,7 +169,7 @@ export default function WithdrawSection({
     start: number = 10,
     end: number = 10
   ): string {
-    if (address.length <= start + end) return address; // 주소가 충분히 짧으면 그대로 반환
+    if (address.length <= start + end) return address;
     return `${address.slice(0, start)}......${address.slice(-end)}`;
   }
 
@@ -215,10 +178,8 @@ export default function WithdrawSection({
     chunkSize: number = 16
   ): string {
     return (
-      address
-        .match(new RegExp(`.{1,${chunkSize}}`, "g")) // 주어진 길이(chunkSize)로 자름
-        ?.join("\n") || address
-    ); // 줄바꿈을 추가하여 반환
+      address.match(new RegExp(`.{1,${chunkSize}}`, "g"))?.join("\n") || address
+    );
   }
 
   useEffect(() => {
@@ -231,14 +192,13 @@ export default function WithdrawSection({
         {translations.withdrawWallet}
       </h1>
 
-      {/* 출금 지갑 섹션 */}
       <div className="mb-4 p-4 border rounded border-cyan-500 bg-gray-800">
         {!walletData?.whithdrawAddress ||
         walletData.whithdrawAddress === "0x" ? (
           <div>
             <input
               type="text"
-              //value={withdrawAddress}
+              value={withdrawAddress}
               onChange={(e) => setWithdrawAddress(e.target.value)}
               placeholder={translations.enterWithdrawAddress}
               className="w-full px-4 py-2 mb-4 border rounded focus:outline-none focus:ring-2 focus:ring-cyan-400 bg-gray-800 text-white placeholder-gray-400"
@@ -263,7 +223,6 @@ export default function WithdrawSection({
         )}
       </div>
 
-      {/* 출금 요청 섹션 */}
       {(["USDT", "DOGE"] as TokenType[]).map((token) => (
         <div
           key={token}
@@ -318,7 +277,6 @@ export default function WithdrawSection({
         </div>
       ))}
 
-      {/* 출금 대기 섹션 */}
       <h1 className="text-4xl font-bold text-center text-cyan-400 mb-6 tracking-wide">
         {translations.pendingWithdraws}
       </h1>

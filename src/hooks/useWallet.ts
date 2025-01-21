@@ -1,34 +1,5 @@
-// hooks/useWallet.ts
-
 import { useState } from "react";
 import { useGraphQL } from "@/utils/graphqlApi";
-// import { Socket } from "socket.io-client";
-// import { getSocket, disconnectSocket } from "@/utils/socket";
-
-interface DepositNotification {
-  walletAddress: string;
-  amount: number;
-}
-
-interface WalletData {
-  address: string;
-  whithdrawAddress: string;
-  usdtBalance: string;
-}
-
-interface MiningData {
-  packageType: string;
-  miningBalance: string;
-}
-
-interface WithdrawalRequest {
-  currency: string;
-  amount: string;
-  status: string;
-  createdAt: string;
-}
-
-//type TokenType = "usdt" | "doge" | "btc";
 
 export function useWallet() {
   const { graphqlRequest, loading, error, setError } = useGraphQL();
@@ -37,14 +8,9 @@ export function useWallet() {
   const [pendingWithdrawals, setPendingWithdrawals] = useState<
     WithdrawalRequest[]
   >([]);
-  //const [selectedToken, setSelectedToken] = useState<TokenType | null>(null);
-
-  //const [deposits, setDeposits] = useState<DepositNotification[]>([]);
-  //const [socket, setSocket] = useState<Socket | null>(null);
 
   const fetchDepositWallet = async () => {
     try {
-      //console.log("Fetching deposit wallet...");
       const { data } = await graphqlRequest(`
         query {
           getWalletInfo {
@@ -55,32 +21,19 @@ export function useWallet() {
         }
       `);
 
-      // Ensure that data exists and handle the response accordingly
       if (data?.getWalletInfo) {
-        console.log(
-          "Wallet Info Success - data.getWalletInfo",
-          data.getWalletInfo
-        );
         setWalletData(data.getWalletInfo);
       } else {
-        setWalletData(null); // Wallet이 없으면 null 설정
-        console.log("Wallet not found, user needs to create one.");
+        setWalletData(null);
       }
     } catch (err: any) {
-      //console.error("Error in fetchDepositWallet:", err);
-
-      // Ensure err.message exists and is a string before calling `includes`
       if (err.message && typeof err.message === "string") {
-        // Handle "Wallet not found" case
         if (err.message.includes("Wallet not found")) {
           setWalletData(null);
-          console.log("Wallet not found, user needs to create one.");
         } else {
-          // Handle other error messages
           setError(err.message || "An unexpected error occurred.");
         }
       } else {
-        // In case `err.message` is not defined, set a generic error message
         setError("An unexpected error occurred.");
       }
     }
@@ -88,7 +41,6 @@ export function useWallet() {
 
   const fetchMiningData = async () => {
     try {
-      //console.log("Fetching mining data...");
       const { data } = await graphqlRequest(`
         query {
           getUserMiningData {
@@ -97,23 +49,19 @@ export function useWallet() {
           }
         }
       `);
-      //console.log("Response received for getUserMiningData:", data);
 
-      // 데이터가 없으면 null로 설정
       if (data?.getUserMiningData) {
         setminingData(data.getUserMiningData);
       } else {
-        setminingData(null); // Wallet이 없으면 null 설정
+        setminingData(null);
       }
     } catch (err: any) {
-      console.error("Error in fetchMiningData:", err);
       setError(err.message || "An unexpected error occurred.");
     }
   };
 
   const fetchPendingWithdrawals = async () => {
     try {
-      console.log("Fetching pending withdrawals...");
       const { data } = await graphqlRequest(`
         query {
           getPendingWithdrawals {
@@ -123,7 +71,6 @@ export function useWallet() {
           }
         }
       `);
-      //console.log("Response received for getPendingWithdrawals:", data);
 
       if (data?.getPendingWithdrawals) {
         setPendingWithdrawals(data.getPendingWithdrawals);
@@ -131,14 +78,12 @@ export function useWallet() {
         setPendingWithdrawals([]);
       }
     } catch (err: any) {
-      console.error("Error in fetchPendingWithdrawals:", err);
       setError(err.message || "Failed to fetch pending withdrawals.");
     }
   };
 
   const createWallet = async () => {
     try {
-      console.log("Creating wallet...");
       const { data } = await graphqlRequest(`
         mutation {
           createWallet {
@@ -148,7 +93,6 @@ export function useWallet() {
           }
         }
       `);
-      console.log("Response received for createWallet:", data);
 
       if (data?.createWallet) {
         setWalletData(data.createWallet);
@@ -156,7 +100,6 @@ export function useWallet() {
         setError("Failed to create wallet.");
       }
     } catch (err: any) {
-      console.error("Error in createWallet:", err);
       setError(err.message || "An unexpected error occurred.");
     }
   };
@@ -172,7 +115,6 @@ export function useWallet() {
     }
 
     try {
-      // console.log("Confirming withdrawal request...");
       const { data } = await graphqlRequest(
         `
           mutation RequestWithdrawal($currency: String!, $amount: Float!, $otp: String!) {
@@ -186,12 +128,10 @@ export function useWallet() {
         }
       );
 
-      //console.log("requestWithdrawal - ", data);
-
       if (data) {
-        fetchDepositWallet(); // Refresh wallet balances
+        fetchDepositWallet();
         fetchMiningData();
-        fetchPendingWithdrawals(); // Refresh pending withdrawals
+        fetchPendingWithdrawals();
         return true;
       }
     } catch (error: any) {
@@ -221,7 +161,7 @@ export function useWallet() {
       );
 
       if (data?.saveWithdrawAddress) {
-        fetchDepositWallet(); // Update wallet data after saving the address
+        fetchDepositWallet();
         return true;
       }
       setError("Failed to save withdraw address.");

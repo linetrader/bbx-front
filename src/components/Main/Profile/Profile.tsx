@@ -105,9 +105,8 @@ export default function Profile() {
   };
 
   const handleCopyReferralLink = () => {
-    if (userData?.username) {
-      const referralLink = `https://bitboost-x.com/register?ref=${userData.username}`;
-      navigator.clipboard.writeText(referralLink);
+    if (userData?.referralLink) {
+      navigator.clipboard.writeText(userData.referralLink);
       setCopySuccess(true);
       setTimeout(() => setCopySuccess(false), 2000);
     }
@@ -192,9 +191,7 @@ export default function Profile() {
                   <span className="font-bold text-cyan-400">
                     {translatedTexts.referralLink}:
                   </span>{" "}
-                  <span className="text-cyan-300">
-                    https://bitboost-x.com/register?ref={userData.username}
-                  </span>
+                  <span className="text-cyan-300">{userData.referralLink}</span>
                 </p>
                 <button
                   className="bg-cyan-500 hover:bg-cyan-400 text-black font-bold py-1 px-4 rounded"

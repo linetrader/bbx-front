@@ -74,7 +74,6 @@ export default function OtpSection({
       return;
     }
     await handleVerifyOtp(otpInput);
-    setOtpInput(""); // 입력 필드 초기화
     onClose(); // 모달 닫기
   };
 

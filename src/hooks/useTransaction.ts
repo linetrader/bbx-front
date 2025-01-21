@@ -1,27 +1,30 @@
 import { useState, useEffect } from "react";
 import { useGraphQL } from "@/utils/graphqlApi";
-import { PurchaseRecord, Transaction } from "./types/common";
+import { PurchaseRecord, Transaction } from "../types/Common";
 
 export function useTransaction(selectedType: string) {
   const { graphqlRequest, loading, error, setError } = useGraphQL();
   const [transactions, setTransactions] = useState<Transaction[] | null>(null);
   const [purchases, setPurchases] = useState<PurchaseRecord[] | null>(null);
+  const [miningLogs, setMiningLogs] = useState<
+    { date: Date; profit: number; packageType: string }[] | null
+  >(null);
 
   const fetchTransactionData = async () => {
-    setError(null); // 이전 에러 상태 초기화
+    setError(null);
     setTransactions(null);
-    //console.log("fetchTransactionData");
     try {
       const { data } = await graphqlRequest(
-        `query {
-          getTransactionList {
+        `query GetTransactionList($type: String!) {
+          getTransactionList(type: $type) {
             type
             amount
             token
             transactionHash
             createdAt
           }
-        }`
+        }`,
+        { type: selectedType }
       );
       setTransactions(data.getTransactionList);
     } catch (err: any) {
@@ -31,8 +34,7 @@ export function useTransaction(selectedType: string) {
   };
 
   const fetchPurchaseRecords = async (status = "approved") => {
-    //console.log("fetchPurchaseRecords");
-    setError(null); // 이전 에러 상태 초기화
+    setError(null);
     setPurchases(null);
     try {
       const { data } = await graphqlRequest(
@@ -44,27 +46,45 @@ export function useTransaction(selectedType: string) {
             createdAt
           }
         }`,
-        { status } // GraphQL 쿼리 변수로 status 전달
+        { status }
       );
-
-      //console.log(data.getPackageRecords);
       setPurchases(data.getPackageRecords);
     } catch (err: any) {
-      //console.log("fetchPurchaseRecords - err : ", err);
-      // `Packages not found.` 에러일 경우
-      if (err === "Packages not found.") {
-        setError(null); // 에러 상태를 null로 설정
-      } else {
-        // 다른 에러 메시지는 그대로 설정
-        setError(err || "An unexpected error occurred.");
-      }
+      setError(
+        err === "Packages not found."
+          ? null
+          : err.message || "An unexpected error occurred."
+      );
       setPurchases([]);
+    }
+  };
+
+  const fetchMiningLogsGroupedByDay = async (limit = 10, offset = 0) => {
+    setError(null);
+    setMiningLogs(null);
+    try {
+      const { data } = await graphqlRequest(
+        `query GetAllMiningLogsGroupedByDay($limit: Int!, $offset: Int!) {
+          getAllMiningLogsGroupedByDay(limit: $limit, offset: $offset) {
+            date
+            profit
+            packageType
+          }
+        }`,
+        { limit, offset }
+      );
+      setMiningLogs(data.getAllMiningLogsGroupedByDay);
+    } catch (err: any) {
+      setError(err.message || "An unexpected error occurred.");
+      setMiningLogs(null);
     }
   };
 
   useEffect(() => {
     if (selectedType === "package_purchase") {
       fetchPurchaseRecords();
+    } else if (selectedType === "minings") {
+      fetchMiningLogsGroupedByDay();
     } else {
       fetchTransactionData();
     }
@@ -73,9 +93,11 @@ export function useTransaction(selectedType: string) {
   return {
     transactions,
     purchases,
+    miningLogs,
     loading,
     error,
     fetchTransactionData,
     fetchPurchaseRecords,
+    fetchMiningLogsGroupedByDay,
   };
 }

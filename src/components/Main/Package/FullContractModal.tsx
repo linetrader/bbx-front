@@ -5,11 +5,7 @@
 import React, { useEffect, useState } from "react";
 import { useTranslationContext } from "@/context/TranslationContext";
 import { fetchTranslation } from "@/utils/TranslateModule/translateCache";
-
-interface FullContractModalProps {
-  contractContents: string[]; // 단락들을 배열로 관리
-  closeModal: () => void;
-}
+import { FullContractModalProps } from "@/types/Package";
 
 const FullContractModal: React.FC<FullContractModalProps> = ({
   contractContents,
@@ -55,7 +51,7 @@ const FullContractModal: React.FC<FullContractModalProps> = ({
           <button
             onClick={closeModal}
             className="absolute top-4 right-4 text-red-500 text-2xl"
-            title={translatedTexts.closeButton} // Button tooltip
+            title={translatedTexts.closeButton}
           >
             &times;
           </button>
@@ -67,8 +63,8 @@ const FullContractModal: React.FC<FullContractModalProps> = ({
           <div
             className="text-gray-300 text-left"
             style={{
-              whiteSpace: "pre-wrap", // 줄 바꿈 유지
-              wordWrap: "break-word", // 긴 단어는 자동으로 줄 바꿈
+              whiteSpace: "pre-wrap",
+              wordWrap: "break-word",
             }}
           >
             {translatedTexts.translatedContents.map((paragraph, index) => (

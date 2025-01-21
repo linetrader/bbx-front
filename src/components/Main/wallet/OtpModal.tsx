@@ -6,14 +6,6 @@ import React, { useEffect, useState } from "react";
 import { useTranslationContext } from "@/context/TranslationContext";
 import { fetchTranslation } from "@/utils/TranslateModule/translateCache";
 
-interface OtpModalProps {
-  isOpen: boolean;
-  otp: string;
-  onClose: () => void;
-  onConfirm: (otp: string) => void;
-  setOtp: (value: string) => void;
-}
-
 const OtpModal: React.FC<OtpModalProps> = ({
   isOpen,
   otp,

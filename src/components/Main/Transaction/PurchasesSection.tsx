@@ -1,9 +1,7 @@
-// src/components/Main/Transaction/PurchasesSection.tsx
-
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { PurchaseRecord } from "../../../hooks/types/common";
+import { PurchaseRecord } from "../../../types/Common";
 import { useTranslationContext } from "@/context/TranslationContext";
 import { fetchTranslation } from "@/utils/TranslateModule/translateCache";
 
@@ -17,7 +15,7 @@ const PurchasesSection: React.FC<PurchasesSectionProps> = ({
   const { language } = useTranslationContext();
 
   const [translatedTexts, setTranslatedTexts] = useState({
-    packagePurchases: "패키지 구매",
+    packagePurchases: "패키지 구매내역",
     packageName: "패키지 이름",
     quantity: "수량",
     totalPrice: "총 가격",
@@ -27,7 +25,7 @@ const PurchasesSection: React.FC<PurchasesSectionProps> = ({
   useEffect(() => {
     const fetchTranslations = async () => {
       const keys = [
-        { key: "packagePurchases", text: "패키지 구매" },
+        { key: "packagePurchases", text: "패키지 구매내역" },
         { key: "packageName", text: "패키지 이름" },
         { key: "quantity", text: "수량" },
         { key: "totalPrice", text: "총 가격" },

@@ -1,5 +1,3 @@
-// src/components/Main/Transaction/FilterSection.tsx
-
 "use client";
 
 import React, { useEffect, useState } from "react";
@@ -10,14 +8,6 @@ interface FilterSectionProps {
   selectedType: string;
   setSelectedType: React.Dispatch<React.SetStateAction<string>>;
 }
-
-const defaultTransactionTypes = [
-  { label: "Minings", value: "minings" },
-  { label: "Deposits", value: "deposit" },
-  { label: "Withdrawals", value: "withdrawal" },
-  { label: "Package Purchases", value: "package_purchase" },
-  { label: "Referral Earnings", value: "referral_earning" },
-];
 
 const FilterSection: React.FC<FilterSectionProps> = ({
   selectedType,

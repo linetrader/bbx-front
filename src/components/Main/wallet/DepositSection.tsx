@@ -7,14 +7,6 @@ import { FiCopy } from "react-icons/fi"; // React Icons에서 복사 아이콘 �
 import { useTranslationContext } from "@/context/TranslationContext";
 import { fetchTranslation } from "@/utils/TranslateModule/translateCache";
 
-interface DepositSectionProps {
-  error: string | null;
-  loading: boolean;
-  walletData: any;
-  miningData: any;
-  createWallet: () => void;
-}
-
 export default function DepositSection({
   error,
   loading,
