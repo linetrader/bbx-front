@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useGraphQL } from "../utils/graphqlApi";
 import { DefaultContractTemplate, Package, UserPackage } from "@/types/Package";
 
@@ -12,6 +12,11 @@ export function usePackage() {
   const [userPackages, setUserPackages] = useState<UserPackage[]>([]);
   const [defaultContract, setDefaultContract] =
     useState<DefaultContractTemplate | null>(null);
+
+  useEffect(() => {
+    console.log("Fetching default contract...");
+    fetchDefaultContract();
+  }, []);
 
   const fetchDefaultContract = async () => {
     try {
@@ -28,6 +33,7 @@ export function usePackage() {
         }
       `);
 
+      console.log("Fetched default contract:", data.getDefaultContract);
       setDefaultContract(data.getDefaultContract);
     } catch (err: any) {
       console.error("Error fetching default contract:", err.message);

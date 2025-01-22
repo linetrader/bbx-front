@@ -85,6 +85,11 @@ export default function ContractModal({
     fetchTranslations();
   }, [language]);
 
+  useEffect(() => {
+    console.log("defaultContract:", defaultContract);
+    console.log("customerInfo:", customerInfo);
+  }, [defaultContract, customerInfo]);
+
   const handleConfirmPurchase = () => {
     if (!customerInfo.name) {
       alert(translatedTexts.enterName);
