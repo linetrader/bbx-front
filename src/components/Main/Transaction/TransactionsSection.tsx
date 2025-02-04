@@ -8,7 +8,9 @@ import { fetchTranslation } from "@/utils/TranslateModule/translateCache";
 
 interface TransactionsSectionProps {
   transactions: Transaction[] | undefined;
-  miningLogs: { date: Date; profit: number; packageType: string }[] | undefined;
+  miningLogs:
+    | { endTime: Date; profit: number; packageType: string }[]
+    | undefined;
   selectedType: string;
 }
 
@@ -118,7 +120,7 @@ const TransactionsSection: React.FC<TransactionsSectionProps> = ({
                 </p>
                 <p className="text-lg text-gray-300">
                   <span className="font-bold text-cyan-400">날짜:</span>{" "}
-                  {new Date(log.date).toLocaleDateString()}
+                  {new Date(log.endTime).toLocaleDateString()}
                 </p>
               </div>
             ))

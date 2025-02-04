@@ -7,7 +7,7 @@ export function useTransaction(selectedType: string) {
   const [transactions, setTransactions] = useState<Transaction[] | null>(null);
   const [purchases, setPurchases] = useState<PurchaseRecord[] | null>(null);
   const [miningLogs, setMiningLogs] = useState<
-    { date: Date; profit: number; packageType: string }[] | null
+    { endTime: Date; profit: number; packageType: string }[] | null
   >(null);
 
   const fetchTransactionData = async () => {
@@ -66,7 +66,7 @@ export function useTransaction(selectedType: string) {
       const { data } = await graphqlRequest(
         `query GetAllMiningLogsGroupedByDay($limit: Int!, $offset: Int!) {
           getAllMiningLogsGroupedByDay(limit: $limit, offset: $offset) {
-            date
+            endTime
             profit
             packageType
           }
