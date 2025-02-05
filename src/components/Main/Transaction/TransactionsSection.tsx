@@ -120,7 +120,7 @@ const TransactionsSection: React.FC<TransactionsSectionProps> = ({
                 </p>
                 <p className="text-lg text-gray-300">
                   <span className="font-bold text-cyan-400">날짜:</span>{" "}
-                  {new Date(log.endTime).toLocaleDateString()}
+                  {new Date(log.endTime).toISOString().split("T")[0]}
                 </p>
               </div>
             ))
