@@ -18,6 +18,7 @@ export default function Profile() {
     setIsOtpEnabled,
     handleGenerateOtp,
     handleVerifyAndSaveOtp,
+    handleChangePassword,
   } = useProfile();
 
   const { language } = useTranslationContext();
@@ -38,11 +39,21 @@ export default function Profile() {
     referralLink: "레퍼럴 링크",
     copyLink: "링크 복사",
     copySuccess: "링크가 복사되었습니다!",
+    changePassword: "비밀번호 변경",
+    enterPassword: "새 비밀번호 입력",
+    confirmPassword: "비밀번호 확인",
+    submit: "확인",
+    cancel: "취소",
+    passwordMismatch: "비밀번호가 일치하지 않습니다.",
+    passwordUpdated: "비밀번호가 변경되었습니다!",
   });
 
   const [step, setStep] = useState<"qr" | "verify">("qr");
   const [isModalOpen, setModalOpen] = useState(false);
   const [copySuccess, setCopySuccess] = useState(false);
+  const [isPasswordChangeOpen, setIsPasswordChangeOpen] = useState(false);
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
 
   useEffect(() => {
     const fetchTranslations = async () => {
@@ -62,6 +73,13 @@ export default function Profile() {
         { key: "referralLink", text: "레퍼럴 링크" },
         { key: "copyLink", text: "링크 복사" },
         { key: "copySuccess", text: "링크가 복사되었습니다!" },
+        { key: "changePassword", text: "비밀번호 변경" },
+        { key: "enterPassword", text: "새 비밀번호 입력" },
+        { key: "confirmPassword", text: "비밀번호 확인" },
+        { key: "submit", text: "확인" },
+        { key: "cancel", text: "취소" },
+        { key: "passwordMismatch", text: "비밀번호가 일치하지 않습니다." },
+        { key: "passwordUpdated", text: "비밀번호가 변경되었습니다!" },
       ];
 
       try {
@@ -109,6 +127,23 @@ export default function Profile() {
       navigator.clipboard.writeText(userData.referralLink);
       setCopySuccess(true);
       setTimeout(() => setCopySuccess(false), 2000);
+    }
+  };
+
+  const handlePasswordUpdate = async () => {
+    if (newPassword !== confirmPassword) {
+      alert("비밀번호가 일치하지 않습니다.");
+      return;
+    }
+
+    const success = await handleChangePassword(newPassword);
+    if (success) {
+      alert("비밀번호가 변경되었습니다!");
+      setIsPasswordChangeOpen(false);
+      setNewPassword("");
+      setConfirmPassword("");
+    } else {
+      alert("비밀번호 변경에 실패했습니다.");
     }
   };
 
@@ -180,6 +215,44 @@ export default function Profile() {
                     </button>
                   )}
                 </p>
+                {/* 비밀번호 변경 버튼 */}
+                <button
+                  className="bg-cyan-500 hover:bg-cyan-400 text-black font-bold py-1 px-4 rounded mt-2"
+                  onClick={() => setIsPasswordChangeOpen(true)}
+                >
+                  {translatedTexts.changePassword}
+                </button>
+
+                {isPasswordChangeOpen && (
+                  <div className="mt-4">
+                    <input
+                      type="password"
+                      placeholder={translatedTexts.enterPassword}
+                      value={newPassword}
+                      onChange={(e) => setNewPassword(e.target.value)}
+                      className="w-full p-2 rounded bg-gray-700 text-white"
+                    />
+                    <input
+                      type="password"
+                      placeholder={translatedTexts.confirmPassword}
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      className="w-full p-2 rounded bg-gray-700 text-white mt-2"
+                    />
+                    <button
+                      className="bg-green-500 px-4 py-2 rounded mt-2"
+                      onClick={handlePasswordUpdate}
+                    >
+                      {translatedTexts.submit}
+                    </button>
+                    <button
+                      className="bg-red-500 px-4 py-2 rounded mt-2 ml-2"
+                      onClick={() => setIsPasswordChangeOpen(false)}
+                    >
+                      {translatedTexts.cancel}
+                    </button>
+                  </div>
+                )}
               </div>
 
               {/* Referral Section */}

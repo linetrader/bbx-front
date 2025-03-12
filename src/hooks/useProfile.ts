@@ -97,6 +97,30 @@ export function useProfile() {
     }
   };
 
+  const handleChangePassword = async (
+    newPassword: string
+  ): Promise<boolean> => {
+    try {
+      const { data } = await graphqlRequest(
+        `
+          mutation ChangePassword($newPassword: String!) {
+            changePassword(newPassword: $newPassword)
+          }
+        `,
+        { newPassword }
+      );
+
+      if (data.changePassword) {
+        console.log("Password changed successfully!");
+        return true;
+      }
+    } catch (err: any) {
+      setError(err.message || "Failed to change password.");
+      return false;
+    }
+    return false;
+  };
+
   useEffect(() => {
     fetchProfileData();
     fetchOtpData();
@@ -112,5 +136,6 @@ export function useProfile() {
     setIsOtpEnabled, // 반환 추가
     handleGenerateOtp,
     handleVerifyAndSaveOtp,
+    handleChangePassword,
   };
 }
